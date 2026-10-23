@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sophia 的廚房</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: grid-paper journal; sticky tab bar of category stickers; cards taped onto the page like photos in a planner */
+:root{
+  --paper:#fffaf6; --grid:#f3e6ea; --ink:#4a3a40; --soft:#8a7479;
+  --card:#ffffff; --line:#eedde2;
+  --pink:#f6a6b8; --pink-bg:#fde7ec;
+  --mint:#8fd1bd; --mint-bg:#e2f5ef;
+  --butter:#f7cf6b; --butter-bg:#fdf3d6;
+  --sky:#9cc6ee; --sky-bg:#e5f0fb;
+  --lilac:#c3aee8; --lilac-bg:#efe8fb;
+  --peach:#f6b48f; --peach-bg:#fdeadf;
+  --tape:rgba(246,166,184,.55);
+  --shadow:0 2px 0 rgba(74,58,64,.06),0 8px 22px -12px rgba(74,58,64,.25);
+  --f-display:"Huninn","jf-openhuninn","Noto Sans TC","PingFang TC",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#241d21; --grid:#2f262b; --ink:#f5e9ec; --soft:#bba7ad; --card:#30272c; --line:#43373d;
+  --pink-bg:#4a2c35; --mint-bg:#20403a; --butter-bg:#463a1e; --sky-bg:#233649; --lilac-bg:#352c4a; --peach-bg:#4a3125;
+  --tape:rgba(246,166,184,.35); --shadow:0 8px 22px -12px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#241d21; --grid:#2f262b; --ink:#f5e9ec; --soft:#bba7ad; --card:#30272c; --line:#43373d;
+  --pink-bg:#4a2c35; --mint-bg:#20403a; --butter-bg:#463a1e; --sky-bg:#233649; --lilac-bg:#352c4a; --peach-bg:#4a3125;
+  --tape:rgba(246,166,184,.35); --shadow:0 8px 22px -12px rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-size:14px}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header.hero{padding-block:40px 18px;display:grid;gap:18px}
+.hero h1{font-family:var(--f-display);font-weight:400;font-size:clamp(34px,7vw,56px);line-height:1.1;margin:0;text-wrap:balance}
+.hero h1 .hl{background:linear-gradient(transparent 58%,var(--butter) 58%);padding:0 .1em}
+.hero p{margin:0;color:var(--soft);max-width:36em}
+.stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat{background:var(--card);border:2px dashed var(--line);border-radius:16px;padding:8px 16px;display:flex;align-items:baseline;gap:6px}
+.stat b{font-family:var(--f-display);font-weight:400;font-size:26px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--soft);font-size:13px}
+
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:2px dotted var(--line)}
+nav.bar .wrap{padding-block:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search{flex:1 1 220px;min-width:0;position:relative}
+.search input{width:100%;font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 16px 8px 38px;outline:none}
+.search input:focus{border-color:var(--pink)}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--soft)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:inherit;font-size:13px;color:var(--ink);border:0;border-radius:999px;padding:6px 12px;cursor:pointer;background:var(--c-bg);white-space:nowrap}
+.chip small{color:var(--soft);margin-left:3px;font-variant-numeric:tabular-nums}
+.chip:hover,.chip:focus-visible{outline:2px solid var(--c);outline-offset:1px}
+
+main{padding-block:10px 60px}
+section.cat{scroll-margin-top:120px;padding-top:26px}
+.cat-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.cat-head h2{font-family:var(--f-display);font-weight:400;font-size:26px;margin:0;background:var(--c-bg);padding:2px 16px;border-radius:10px 4px 10px 4px;transform:rotate(-1deg)}
+.cat-head .n{color:var(--soft);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:26px 20px}
+
+.card{position:relative;background:var(--card);border-radius:6px;padding:10px 10px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;min-width:0}
+.card:nth-child(3n+1){transform:rotate(-.6deg)} .card:nth-child(3n+2){transform:rotate(.5deg)}
+.card::before{content:"";position:absolute;top:-9px;left:50%;width:78px;height:20px;margin-left:-39px;background:var(--tape);transform:rotate(-3deg);border-radius:2px}
+.card:nth-child(even)::before{background:color-mix(in srgb,var(--c) 55%,transparent);transform:rotate(4deg)}
+.photo{position:relative;border:0;padding:0;cursor:zoom-in;border-radius:4px;overflow:hidden;aspect-ratio:4/3;background:var(--grid);display:block;width:100%}
+.photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.photo:hover img{transform:scale(1.04)}
+.photo:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.count{position:absolute;right:8px;bottom:8px;background:rgba(255,255,255,.9);color:#4a3a40;font-size:12px;border-radius:999px;padding:1px 9px}
+.card h3{font-family:var(--f-display);font-weight:400;font-size:20px;margin:0;line-height:1.3}
+.card p{margin:0;font-size:14px;color:var(--soft)}
+.ing{display:flex;flex-wrap:wrap;gap:5px}
+.ing span{font-size:12px;background:var(--c-bg);border-radius:6px;padding:1px 8px}
+.meta{font-size:12px;color:var(--soft);border-top:1.5px dashed var(--line);padding-top:8px;display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+.meta b{color:var(--ink);font-weight:500}
+.empty{text-align:center;color:var(--soft);padding:60px 0;font-family:var(--f-display);font-size:20px}
+
+/* lightbox */
+.lb{position:fixed;inset:0;z-index:20;background:rgba(36,29,33,.82);display:flex;align-items:center;justify-content:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb-box{background:var(--card);border-radius:14px;padding:12px;max-width:min(980px,100%);max-height:100%;display:flex;flex-direction:column;gap:10px;min-width:0}
+.lb-img{position:relative;min-height:0;flex:1;display:flex;align-items:center;justify-content:center}
+.lb-img img{max-height:68vh;width:auto;max-width:100%;border-radius:8px;display:block}
+.lb-cap{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.lb-cap h4{margin:0;font-family:var(--f-display);font-weight:400;font-size:20px}
+.lb-cap span{color:var(--soft);font-size:13px;font-variant-numeric:tabular-nums}
+.lb-thumbs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.lb-thumbs button{flex:0 0 auto;border:2px solid transparent;border-radius:6px;padding:0;cursor:pointer;background:none;opacity:.6}
+.lb-thumbs button[aria-current="true"]{border-color:var(--pink);opacity:1}
+.lb-thumbs img{width:64px;height:48px;object-fit:cover;display:block;border-radius:4px}
+.nav-btn,.close{border:0;cursor:pointer;background:var(--card);color:var(--ink);width:40px;height:40px;border-radius:50%;font-size:22px;line-height:1;box-shadow:var(--shadow)}
+.nav-btn{position:absolute;top:50%;transform:translateY(-50%)}
+.prev{left:6px}.next{right:6px}
+.close{flex:0 0 auto}
+.nav-btn:focus-visible,.close:focus-visible{outline:3px solid var(--pink)}
+footer{color:var(--soft);font-size:13px;text-align:center;padding-block:0 40px}
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <h1><span class="hl">Sophia 的廚房</span></h1>
+  <p>從 2023 年冬天到現在，一道一道做出來的家常菜。點照片可以看大圖，同一道菜做過好幾次的，照片都收在一起。</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<nav class="bar" aria-label="料理類別">
+  <div class="wrap">
+    <label class="search" for="q">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input id="q" type="search" placeholder="搜尋菜名或食材，例如：鮭魚、豆腐" autocomplete="off">
+    </label>
+    <div class="chips" id="chips"></div>
+  </div>
+</nav>
+
+<main class="wrap" id="main"></main>
+<footer class="wrap">Sophia 的廚房 · 照片拍攝於 2023–2026</footer>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="照片">
+  <div class="lb-box">
+    <div class="lb-cap"><div><h4 id="lbTitle"></h4><span id="lbDate"></span></div><button class="close" id="lbClose" aria-label="關閉">×</button></div>
+    <div class="lb-img">
+      <img id="lbImg" alt="">
+      <button class="nav-btn prev" id="lbPrev" aria-label="上一張">‹</button>
+      <button class="nav-btn next" id="lbNext" aria-label="下一張">›</button>
+    </div>
+    <div class="lb-thumbs" id="lbThumbs"></div>
+  </div>
+</div>
+
+<script>
+const DATES={"0321":"2023/11/24","0328":"2025/05/24","0399":"2026/05/17","0467":"2025/05/30","0478":"2025/05/31","0536":"2026/01/24","0633":"2025/06/07","0913":"2023/12/31","0916":"2023/12/31","0927":"2024/01/03","0934":"2024/01/04","0950":"2024/01/05","1099":"2026/01/31","1103":"2026/01/31","1256":"2026/05/30","1282":"2026/05/30","1292":"2026/05/31","1317":"2026/02/08","1324":"2024/01/22","1347":"2024/01/27","1358":"2024/01/28","1419":"2025/06/21","1467":"2026/06/06","1470":"2026/02/14","1478":"2026/06/06","1641":"2026/06/14","1702":"2026/06/18","1912":"2024/02/16","2122":"2024/02/22","2161":"2026/06/20","2273":"2026/06/27","2279":"2024/03/02","2281":"2026/06/28","2290":"2024/03/03","2300":"2024/03/06","2380":"2024/03/18","2391":"2024/03/20","2398":"2024/03/21","2399":"2024/03/18","2400":"2024/03/21","2401":"2024/03/21","2402":"2024/03/13","2425":"2024/03/22","2522":"2026/07/05","2716":"2024/04/09","2727":"2024/04/11","2731":"2024/04/13","2764":"2025/08/03","2774":"2024/04/17","2792":"2024/04/18","2803":"2024/04/20","2811":"2024/04/22","2918":"2024/05/16","2966":"2024/05/25","2998":"2024/05/30","3019":"2025/08/16","3020":"2025/08/16","3025":"2024/06/04","3068":"2024/06/11","3180":"2024/06/20","3198":"2024/06/23","3212":"2026/07/27","3215":"2024/06/27","3246":"2025/08/23","3249":"2024/06/30","3571":"2026/03/08","3640":"2025/09/08","3765":"2026/03/15","3809":"2025/09/14","3810":"2024/08/04","3826":"2024/08/08","3948":"2024/08/23","4015":"2025/09/20","4016":"2025/09/20","4032":"2024/08/26","4216":"2025/09/28","4615":"2025/10/08","4751":"2025/10/11","4843":"2026/09/19","4888":"2025/10/18","4899":"2025/10/18","4990":"2025/10/24","4995":"2025/10/25","5381":"2025/11/08","5393":"2025/11/08","5414":"2025/11/10","5418":"2025/11/10","5473":"2025/11/13","5519":"2025/11/15","5617":"2024/11/23","5797":"2026/04/04","5903":"2024/12/07","5907":"2024/12/07","5974":"2026/04/05","6410":"2026/04/07","6522":"2025/11/25","6750":"2025/11/29","6751":"2025/11/29","6832":"2025/01/11","7112":"2025/01/25","7308":"2026/10/18","7386":"2025/02/08","7393":"2025/12/06","7397":"2025/12/06","7416":"2025/12/07","7539":"2025/02/15","7543":"2025/02/15","7581":"2025/08/17","7993":"2025/03/01","7994":"2025/03/01","8411":"2025/03/16","8558":"2025/03/23","8560":"2025/03/23","8745":"2025/03/30","8851":"2025/12/21","8905":"2025/04/06","9042":"2026/04/18","9386":"2025/04/26","9387":"2025/04/26","9574":"2026/01/01","9600":"2026/01/02","9606":"2026/01/02","9618":"2026/01/03","9633":"2026/01/04","9693":"2025/05/03","9864":"2026/05/09","9880":"2026/01/11","9948":"2025/05/10"};
+
+const CATS=[
+  {k:"meat",name:"肉料理",c:"var(--pink)",bg:"var(--pink-bg)"},
+  {k:"sea",name:"海鮮",c:"var(--sky)",bg:"var(--sky-bg)"},
+  {k:"egg",name:"蛋・豆腐",c:"var(--butter)",bg:"var(--butter-bg)"},
+  {k:"veg",name:"蔬菜",c:"var(--mint)",bg:"var(--mint-bg)"},
+  {k:"soup",name:"湯・鍋物",c:"var(--peach)",bg:"var(--peach-bg)"},
+  {k:"main",name:"飯・麵",c:"var(--lilac)",bg:"var(--lilac-bg)"},
+  {k:"sweet",name:"點心",c:"var(--pink)",bg:"var(--pink-bg)"}
+];
+
+// 第一張照片是封面
+const DISHES=[
+ // 肉料理
+ {n:"照燒雞腿",c:"meat",d:"醬汁煮到收乾發亮，甜鹹下飯的固定班底。",i:["去骨雞腿","醬油","味醂"],p:["5519","1099","2731","2803","4015","5381","5418","7993","8745"]},
+ {n:"洋蔥炒肉片",c:"meat",d:"洋蔥炒軟出甜味，和豬肉片一起拌飯最對味。",i:["豬肉片","洋蔥","醬油"],p:["0934","1282","1324","1347","2281","2998","9693"]},
+ {n:"薑燒豬肉",c:"meat",d:"日式薑汁醬燒，帶點芝麻香。",i:["豬肉片","薑泥","洋蔥","芝麻"],p:["9606","3215","3826"]},
+ {n:"香煎雞腿時蔬",c:"meat",d:"雞腿和櫛瓜、玉米筍、杏鮑菇一起煎得焦香。",i:["雞腿","櫛瓜","玉米筍","杏鮑菇"],p:["0467","0478","1419"]},
+ {n:"洋蔥燒雞腿",c:"meat",d:"雞腿肉和大量洋蔥燒到軟甜，撒上芝麻。",i:["雞腿","洋蔥","芝麻"],p:["8560","8558"]},
+ {n:"紅燒雞腿",c:"meat",d:"醬色濃郁的燉雞腿，湯汁可以直接淋飯。",i:["雞腿","醬油","蔥"],p:["2811"]},
+ {n:"炒雞柳",c:"meat",d:"雞肉切條快炒，簡單清爽。",i:["雞胸肉","蒜"],p:["2122","4016"]},
+ {n:"青椒炒牛肉",c:"meat",d:"青椒的脆和牛肉片的嫩，經典台式快炒。",i:["牛肉片","青椒","蒜"],p:["2399"]},
+ {n:"洋蔥炒牛肉",c:"meat",d:"牛肉片配洋蔥，像牛丼的配料。",i:["牛肉片","洋蔥"],p:["6410"]},
+ {n:"高麗菜炒牛肉",c:"meat",d:"高麗菜吸滿牛肉的香氣，一盤就很滿足。",i:["牛肉片","高麗菜"],p:["4751"]},
+ {n:"醬爆牛肉片",c:"meat",d:"醬汁濃郁的快炒牛肉片。",i:["牛肉片","醬油","蒜"],p:["3249"]},
+ {n:"煎牛排",c:"meat",d:"大塊牛排煎到喜歡的熟度，切片上桌。",i:["牛排","黑胡椒","鹽"],p:["2279","3640"]},
+ {n:"骰子牛",c:"meat",d:"切成小方塊大火煎，外香內嫩。",i:["牛肉","蒜","鹽"],p:["1470"]},
+ {n:"番茄紅蘿蔔燉牛肉",c:"meat",d:"鑄鐵鍋慢燉，牛肉軟爛、紅蘿蔔吸飽湯汁。",i:["牛肉","番茄","紅蘿蔔"],p:["1256"]},
+ {n:"馬鈴薯燉肉",c:"meat",d:"日式家庭味，馬鈴薯鬆軟、湯汁甜甜的。",i:["豬肉片","馬鈴薯","紅蘿蔔","洋蔥"],p:["2402","3212"]},
+ {n:"韓式辣炒豬肉",c:"meat",d:"韓式辣醬炒豬肉和洋蔥，香辣開胃。",i:["豬肉片","韓式辣醬","洋蔥"],p:["4899","7112"]},
+ {n:"蔥爆肉片",c:"meat",d:"大量蔥段爆香，肉片帶著蔥香。",i:["豬肉片","蔥"],p:["1641"]},
+ {n:"豆干炒肉絲",c:"meat",d:"豆干、肉絲加上菇類，鹹香家常味。",i:["豆干","肉絲","菇類"],p:["0916"]},
+ {n:"什錦蔬菜炒肉片",c:"meat",d:"冰箱裡的蔬菜和肉片一起大炒，色彩繽紛。",i:["豬肉片","白菜","玉米筍","紅蘿蔔","蛋"],p:["3019","7393","4216"]},
+ {n:"豆芽炒肉片",c:"meat",d:"爽脆的豆芽搭配肉片，便當常客。",i:["豬肉片","豆芽菜"],p:["3198"]},
+ {n:"涮豬肉片佐醬",c:"meat",d:"豬肉片燙熟後淋上醬汁，清爽不膩。",i:["豬五花片","醬汁"],p:["7416"]},
+ // 海鮮
+ {n:"香煎奶油鮭魚",c:"sea",d:"鮭魚排煎到兩面金黃，奶油和黑胡椒提香。",i:["鮭魚","奶油","黑胡椒"],p:["2401","1103","2727","4615","5393","5473","7539","7994"]},
+ {n:"紙包烤鮭魚",c:"sea",d:"用烘焙紙包起來烤，魚肉保持濕潤。",i:["鮭魚","烘焙紙","鹽"],p:["5617"]},
+ {n:"清蒸鱸魚",c:"sea",d:"整尾鱸魚清蒸，淋上蔥絲和醬油。",i:["鱸魚","蔥","薑","醬油"],p:["0633"]},
+ {n:"香煎鱸魚排",c:"sea",d:"魚排皮煎得酥脆，肉質細嫩。",i:["鱸魚排","鹽"],p:["6750"]},
+ {n:"烤鯖魚",c:"sea",d:"油脂豐富的鯖魚烤到表皮焦香，擠點檸檬。",i:["鯖魚","檸檬"],p:["8411","3809"]},
+ {n:"絲瓜燴鮮蝦",c:"sea",d:"絲瓜的清甜加上鮮蝦和蛋花，湯汁也很好喝。",i:["絲瓜","鮮蝦","蛋"],p:["5974","0399","1292","6410","7308"]},
+ {n:"絲瓜蛤蜊炒蛋",c:"sea",d:"蛤蜊的鮮味全煮進絲瓜裡。",i:["絲瓜","蛤蜊","蛋"],p:["5797","1641"]},
+ {n:"蒜香奶油蝦",c:"sea",d:"帶殼鮮蝦用蒜和奶油煎香，一上桌就被搶光。",i:["鮮蝦","蒜","奶油"],p:["3571","5797","7386","7543"]},
+ {n:"鹽烤鮮蝦",c:"sea",d:"簡單鹽烤就很鮮甜，滿滿一大盤。",i:["鮮蝦","鹽"],p:["3765"]},
+ {n:"蝦仁燴豆腐",c:"sea",d:"嫩豆腐和蝦仁燴成一鍋，湯汁鮮甜。",i:["蝦仁","豆腐"],p:["5903"]},
+ // 蛋・豆腐
+ {n:"番茄炒蛋",c:"egg",d:"酸甜滑嫩的國民家常菜，配飯一碗接一碗。",i:["番茄","蛋","蔥"],p:["0934","2122","2279","5473","9387","9606"]},
+ {n:"雞蛋豆腐",c:"egg",d:"雞蛋豆腐切塊煎到表面金黃，淋點醬油膏。",i:["雞蛋豆腐","醬油膏","蔥"],p:["2402","1324","1347","1358","1912","2300","2803","4016","5414","5418","5519","5617","9948"]},
+ {n:"菇菇豆腐",c:"egg",d:"嫩豆腐和綜合菇一起燴煮，滑順入味。",i:["豆腐","鴻喜菇","香菇"],p:["2399"]},
+ {n:"家常豆腐",c:"egg",d:"炸豆腐和青菜、香菇一起紅燒。",i:["板豆腐","青江菜","香菇","木耳"],p:["7397","9618"]},
+ {n:"青江菜燴豆腐",c:"egg",d:"清爽的青江菜搭配嫩豆腐。",i:["青江菜","豆腐"],p:["2918"]},
+ {n:"豆腐炒蛋",c:"egg",d:"豆腐和蛋一起炒，口感軟嫩。",i:["豆腐","蛋"],p:["2998","7539"]},
+ {n:"皮蛋豆腐",c:"egg",d:"冰涼嫩豆腐配皮蛋，夏天的快速小菜。",i:["嫩豆腐","皮蛋","醬油膏"],p:["3809","4016"]},
+ {n:"滷豆干",c:"egg",d:"豆干滷到入味，配上水波蛋做成便當。",i:["豆干","醬油","蛋"],p:["3068"]},
+ {n:"菠菜炒蛋",c:"egg",d:"青菜和蛋一起炒，簡單又營養。",i:["菠菜","蛋","蒜"],p:["1256","0478","1358","1419","1470","2731","5617","7386"]},
+ {n:"高麗菜炒蛋",c:"egg",d:"高麗菜炒蛋，偶爾加點紅蘿蔔增色。",i:["高麗菜","蛋","紅蘿蔔"],p:["1324","1103","2803"]},
+ {n:"竹筍炒蛋",c:"egg",d:"竹筍絲、紅蘿蔔絲和蛋一起炒，口感爽脆。",i:["竹筍","紅蘿蔔","蛋"],p:["1292"]},
+ {n:"玉米炒蛋",c:"egg",d:"甜玉米配蛋，金黃色的一盤。",i:["玉米","蛋"],p:["1702"]},
+ {n:"九層塔烘蛋",c:"egg",d:"九層塔香氣十足的厚烘蛋。",i:["蛋","九層塔"],p:["0399"]},
+ {n:"烘蛋",c:"egg",d:"蛋液煎成大片，切塊上桌。",i:["蛋","蔥"],p:["4216","9387","9693"]},
+ {n:"歐姆蛋",c:"egg",d:"蛋皮包著餡料，表面淋上醬汁。",i:["蛋","洋蔥"],p:["8558"]},
+ {n:"荷包蛋",c:"egg",d:"半熟的蛋黃，配什麼都好吃。",i:["蛋"],p:["0927","2727","3215","5393","5418","7993","7994","8745"]},
+ // 蔬菜
+ {n:"清炒高麗菜",c:"veg",d:"蒜頭爆香快炒，最常出現的一道青菜。",i:["高麗菜","蒜"],p:["2399","0399","0913","1912","2122","2290","2300","2727","3571","3765","5519","7112","7539","7543","8411","9574","9618","9693"]},
+ {n:"香菇炒高麗菜",c:"veg",d:"加了香菇，高麗菜多一層香氣。",i:["高麗菜","香菇"],p:["2279","2122"]},
+ {n:"竹輪炒高麗菜",c:"veg",d:"竹輪切片和高麗菜一起炒，帶點鹹香。",i:["高麗菜","竹輪"],p:["1912"]},
+ {n:"燙大陸妹",c:"veg",d:"快速燙熟淋上醬油，清爽解膩。",i:["大陸妹","醬油","蒜"],p:["2402","0927","0934","1282","1347","1478","2273","2425","2792","2918","2966","3068","4032","6750","8558","9606"]},
+ {n:"香菇炒大陸妹",c:"veg",d:"香菇的鮮味讓青菜更有層次。",i:["大陸妹","香菇"],p:["2290"]},
+ {n:"大陸妹炒玉米筍",c:"veg",d:"綠色青菜配上鮮黃玉米筍。",i:["大陸妹","玉米筍"],p:["4899","2998"]},
+ {n:"燙青江菜",c:"veg",d:"青江菜燙熟保留脆度，淋點蠔油。",i:["青江菜","蠔油"],p:["1467","1256","2998","3948","4216","5414","8745"]},
+ {n:"青江菜炒杏鮑菇",c:"veg",d:"青江菜和杏鮑菇一起炒，口感豐富。",i:["青江菜","杏鮑菇"],p:["0633"]},
+ {n:"青江菜炒紅蘿蔔",c:"veg",d:"紅綠配色好看，紅蘿蔔切絲炒軟。",i:["青江菜","紅蘿蔔"],p:["5393","2792","2811"]},
+ {n:"炒水蓮",c:"veg",d:"細長的水蓮清脆爽口，蒜炒最好吃。",i:["水蓮","蒜"],p:["2273","1641","2803","3020","3215","3809","3826","4016","4615","4751","5418","7543","7581","7994"]},
+ {n:"清炒花椰菜",c:"veg",d:"綠花椰菜炒到翠綠，有時加點芝麻醬。",i:["綠花椰菜","蒜"],p:["5473","1099","4888","4990","5381","5393","6751","9606","9880"]},
+ {n:"白花椰炒木耳",c:"veg",d:"白花椰菜、木耳和紅蘿蔔，色彩豐富。",i:["白花椰菜","木耳","紅蘿蔔"],p:["7416","8851"]},
+ {n:"煎櫛瓜",c:"veg",d:"櫛瓜切圓片煎到兩面焦黃，撒點鹽就很香。",i:["櫛瓜","鹽","黑胡椒"],p:["1282","1099","4899","7386","7539"]},
+ {n:"炒櫛瓜",c:"veg",d:"櫛瓜切塊快炒，配上杏鮑菇或紅蘿蔔。",i:["櫛瓜","杏鮑菇","紅蘿蔔"],p:["2731","2727"]},
+ {n:"金沙杏鮑菇",c:"veg",d:"杏鮑菇裹上鹹蛋黃，香氣濃郁。",i:["杏鮑菇","鹹蛋黃","蔥"],p:["2380","2399"]},
+ {n:"香菇炒杏鮑菇",c:"veg",d:"雙菇一起炒，滿滿菇類香氣。",i:["香菇","杏鮑菇"],p:["2998","7386"]},
+ {n:"莧菜蛋花",c:"veg",d:"莧菜煮軟加蛋花勾薄芡，湯湯水水很下飯。",i:["莧菜","蛋","蒜"],p:["0916","0321"]},
+ {n:"木耳香菇炒青菜",c:"veg",d:"木耳、香菇和青菜快炒，口感多變。",i:["木耳","香菇","青菜"],p:["0321"]},
+ {n:"金針菇炒紅蘿蔔絲",c:"veg",d:"金針菇和紅蘿蔔絲，清爽的小配菜。",i:["金針菇","紅蘿蔔"],p:["0913"]},
+ {n:"香菇炒牛蒡",c:"veg",d:"牛蒡和香菇炒到入味，適合放便當。",i:["牛蒡","香菇","紅蘿蔔"],p:["0913"]},
+ {n:"白菜炒木耳",c:"veg",d:"白菜、木耳、紅蘿蔔一起炒，清甜爽口。",i:["白菜","木耳","紅蘿蔔"],p:["6750"]},
+ {n:"什錦炒時蔬",c:"veg",d:"多種蔬菜一起炒，一盤就有好幾種顏色。",i:["紅蘿蔔","筍","青菜"],p:["5381"]},
+ {n:"炒四季豆",c:"veg",d:"四季豆炒到微焦，清脆可口。",i:["四季豆","蒜"],p:["4888","7993"]},
+ {n:"金針菇炒豆芽",c:"veg",d:"金針菇和豆芽菜，簡單清爽。",i:["金針菇","豆芽菜","青菜"],p:["3249"]},
+ {n:"炒白蘿蔔絲",c:"veg",d:"白蘿蔔切絲炒軟，配上青菜。",i:["白蘿蔔","青菜"],p:["9387"]},
+ {n:"生菜沙拉",c:"veg",d:"新鮮生菜，搭配烤雞時蔬一起吃。",i:["生菜","醬汁"],p:["1419"]},
+ {n:"馬鈴薯沙拉",c:"veg",d:"馬鈴薯壓泥拌上美乃滋和蛋。",i:["馬鈴薯","蛋","美乃滋"],p:["1419"]},
+ // 湯・鍋物
+ {n:"蒜頭香菇雞湯",c:"soup",d:"整顆蒜頭和香菇燉雞，湯頭金黃濃郁。",i:["雞腿","蒜頭","香菇"],p:["2400","2391","4990","5414"]},
+ {n:"香菇竹筍雞湯",c:"soup",d:"竹筍、玉米和香菇燉雞，湯頭清甜。",i:["雞肉","竹筍","香菇","玉米"],p:["4995","2281"]},
+ {n:"玉米高麗菜雞湯",c:"soup",d:"鑄鐵鍋燉出來的雞湯，高麗菜和玉米很甜。",i:["雞肉","高麗菜","玉米"],p:["1317"]},
+ {n:"味噌豆乳番茄鍋",c:"soup",d:"味噌和豆乳加上番茄，濃郁又帶點酸甜。",i:["番茄","豆乳","味噌","豆腐","白菜"],p:["2400","2398"]},
+ {n:"壽喜燒",c:"soup",d:"甜甜的壽喜燒醬汁煮肉片和蔬菜，最後打顆蛋。",i:["牛肉片","白菜","豆腐","菇類"],p:["9633","2425","3246","9864"]},
+ {n:"韓式泡菜鍋",c:"soup",d:"泡菜、豆腐和青菜一起煮，辣得很過癮。",i:["泡菜","豆腐","青江菜"],p:["8905","3640"]},
+ {n:"什錦豆腐鍋",c:"soup",d:"豆腐、油豆腐、竹輪和肉片，一鍋什麼都有。",i:["豆腐","油豆腐","竹輪","豬肉片"],p:["2918","2792","2811"]},
+ {n:"番茄高麗菜排骨湯",c:"soup",d:"排骨和番茄、高麗菜燉到湯色橘紅。",i:["排骨","番茄","高麗菜"],p:["0536"]},
+ {n:"竹筍蘿蔔排骨湯",c:"soup",d:"竹筍、白蘿蔔、玉米筍熬排骨，清甜爽口。",i:["排骨","竹筍","白蘿蔔","紅蘿蔔"],p:["2522"]},
+ {n:"番茄牛肉湯",c:"soup",d:"像羅宋湯一樣，番茄、玉米、紅蘿蔔和牛肉一起燉。",i:["牛肉","番茄","玉米","白蘿蔔"],p:["1467","1478"]},
+ {n:"番茄白菜豆腐鍋",c:"soup",d:"油豆腐、白菜、番茄和肉片，一大碗很滿足。",i:["油豆腐","白菜","番茄","豬肉片"],p:["0328"]},
+ {n:"白菜豬肉片湯",c:"soup",d:"白菜煮到軟甜，加上豬肉片。",i:["白菜","豬肉片"],p:["0927","9948"]},
+ {n:"絲瓜肉片湯",c:"soup",d:"絲瓜、肉片和蛋花，清甜的湯。",i:["絲瓜","豬肉片","蛋"],p:["2966","3025"]},
+ {n:"青椒豆芽肉片湯",c:"soup",d:"青椒、豆芽和肉片煮成的湯。",i:["青椒","豆芽菜","肉片"],p:["4888"]},
+ {n:"味噌豆腐湯",c:"soup",d:"海帶芽和豆腐的味噌湯，配日式定食剛好。",i:["味噌","豆腐","海帶芽"],p:["3571","7543","7994","8411","9387","9693"]},
+ {n:"海帶芽蛋花湯",c:"soup",d:"海帶芽、蛋花加上魚板，暖胃的湯。",i:["海帶芽","蛋","魚板"],p:["5907"]},
+ {n:"菠菜蛋花湯",c:"soup",d:"菠菜和蛋花，簡單清爽。",i:["菠菜","蛋"],p:["7416","7993"]},
+ {n:"青江菜豆腐湯",c:"soup",d:"嫩豆腐和青江菜，淡淡的清湯。",i:["豆腐","青江菜"],p:["8745"]},
+ {n:"竹輪豆腐湯",c:"soup",d:"竹輪、豆腐和白菜煮成的湯。",i:["竹輪","豆腐","白菜"],p:["1912"]},
+ {n:"貢丸湯",c:"soup",d:"彈牙貢丸加上芹菜，台式家常湯。",i:["貢丸","芹菜"],p:["1641","8558"]},
+ {n:"豆腐魚湯",c:"soup",d:"魚片和豆腐煮成的清湯，很鮮甜。",i:["魚片","豆腐","薑"],p:["3020"]},
+ {n:"蛤蜊蛋花鍋",c:"soup",d:"蛤蜊、白菜和番茄，最後打上蛋花。",i:["蛤蜊","白菜","番茄","蛋"],p:["9042"]},
+ {n:"鮮蝦白菜豆腐鍋",c:"soup",d:"鮮蝦、白菜和豆腐，配泡菜和沾醬。",i:["鮮蝦","白菜","豆腐"],p:["9386"]},
+ {n:"鮮蝦雞肉湯鍋",c:"soup",d:"大蝦、雞肉、白菜和玉米筍，豐盛的一鍋。",i:["鮮蝦","雞肉","白菜","玉米筍"],p:["6832"]},
+ {n:"雞肉蔬菜鍋",c:"soup",d:"雞肉、白菜、青江菜和香菇煮一鍋。",i:["雞肉","白菜","青江菜","香菇"],p:["6522"]},
+ {n:"高麗菜荷包蛋鍋",c:"soup",d:"高麗菜和肉片燉煮，上面放兩顆荷包蛋。",i:["高麗菜","肉片","蛋"],p:["9600"]},
+ {n:"玉米蛋花湯",c:"soup",d:"玉米和蛋花，甜甜的湯。",i:["玉米","蛋"],p:["5797"]},
+ // 飯・麵
+ {n:"雞肉優格咖哩飯",c:"main",d:"加了優格的咖哩，雞肉更嫩，常配一顆荷包蛋。",i:["雞肉","咖哩塊","優格","馬鈴薯","紅蘿蔔"],p:["2401","2290","2300","3810","3826","6751","9880"]},
+ {n:"綠咖哩雞",c:"main",d:"泰式綠咖哩，香辣帶椰奶香。",i:["雞肉","綠咖哩醬","椰奶"],p:["4032"]},
+ {n:"親子丼",c:"main",d:"雞肉和洋蔥用蛋汁包起來，蓋在白飯上。",i:["雞肉","洋蔥","蛋"],p:["9574"]},
+ {n:"牛丼",c:"main",d:"甜鹹的洋蔥牛肉蓋在飯上。",i:["牛肉片","洋蔥","醬油"],p:["7397"]},
+ {n:"香菇雞肉鹹粥",c:"main",d:"香菇、玉米和雞肉熬成的鹹粥，暖胃好入口。",i:["白米","雞肉","香菇","玉米"],p:["3948"]},
+ {n:"雞胸肉健康餐盒",c:"main",d:"雞胸肉、地瓜、花椰菜和水煮蛋，帶便當的好選擇。",i:["雞胸肉","地瓜","花椰菜","蛋"],p:["3180","3198"]},
+ {n:"鮮蝦義大利麵",c:"main",d:"一圈鮮蝦擺盤，配上櫛瓜或花椰菜。",i:["義大利麵","鮮蝦","櫛瓜","花椰菜"],p:["2161","4843"]},
+ {n:"鮭魚奶油義大利麵",c:"main",d:"寬麵拌奶油醬，加上鮭魚和玉米筍。",i:["寬麵","鮭魚","鮮奶油","玉米筍"],p:["2764"]},
+ {n:"奶油蔬菜義大利麵",c:"main",d:"櫛瓜和玉米筍的奶油寬麵。",i:["寬麵","櫛瓜","玉米筍","鮮奶油"],p:["4015"]},
+ {n:"茄汁櫛瓜義大利麵",c:"main",d:"番茄醬汁和櫛瓜，清爽的義大利麵。",i:["義大利麵","櫛瓜","番茄"],p:["7581"]},
+ {n:"肉醬義大利麵",c:"main",d:"番茄絞肉醬拌直麵，大人小孩都愛。",i:["義大利麵","絞肉","番茄"],p:["8851"]},
+ {n:"番茄牛肉麵",c:"main",d:"番茄燉牛肉加上麵條和青江菜。",i:["牛肉","番茄","紅蘿蔔","麵條"],p:["1702"]},
+ {n:"牛肉湯麵",c:"main",d:"牛肉片、白菜、豆芽加蛋，熱呼呼一大碗。",i:["牛肉片","白菜","豆芽菜","麵條"],p:["0950"]},
+ {n:"雞絲湯麵",c:"main",d:"雞肉絲和金針菇的清湯麵。",i:["雞肉","金針菇","麵條"],p:["1358"]},
+ {n:"白菜豬肉湯麵",c:"main",d:"豬肉片、白菜和半熟蛋的湯麵。",i:["豬肉片","白菜","蛋","麵條"],p:["2774"]},
+ {n:"番茄蔬菜泡麵",c:"main",d:"泡麵加番茄和絲瓜，升級成一鍋好料。",i:["泡麵","番茄","絲瓜"],p:["2716"]},
+ // 點心
+ {n:"花生麻糬",c:"sweet",d:"軟Q麻糬沾滿花生粉，飯後小甜點。",i:["麻糬","花生粉"],p:["2281"]}
+];
+
+const $=s=>document.querySelector(s);
+const dateOf=id=>DATES[id]||"";
+const sorted=ids=>[...ids].map(dateOf).filter(Boolean).sort();
+
+function stats(){
+  const photos=new Set(DISHES.flatMap(d=>d.p));
+  const ds=sorted(photos);
+  $("#stats").innerHTML=[
+    [DISHES.length,"道料理"],[photos.size,"張照片"],[CATS.length,"個類別"],[ds[0].slice(0,4)+"–"+ds.at(-1).slice(0,4),"一路做到現在"]
+  ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join("");
+}
+
+function render(q=""){
+  q=q.trim().toLowerCase();
+  const match=d=>!q||d.n.toLowerCase().includes(q)||d.i.some(x=>x.toLowerCase().includes(q))||d.d.includes(q);
+  let html="",any=false;
+  $("#chips").innerHTML="";
+  for(const cat of CATS){
+    const list=DISHES.filter(d=>d.c===cat.k&&match(d)).sort((a,b)=>b.p.length-a.p.length);
+    const chip=document.createElement("button");
+    chip.className="chip";chip.style.setProperty("--c",cat.c);chip.style.setProperty("--c-bg",cat.bg);
+    chip.innerHTML=`${cat.name}<small>${list.length}</small>`;
+    chip.disabled=!list.length;chip.style.opacity=list.length?1:.45;
+    chip.onclick=()=>document.getElementById("cat-"+cat.k).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+    $("#chips").append(chip);
+    if(!list.length)continue;
+    any=true;
+    html+=`<section class="cat" id="cat-${cat.k}" style="--c:${cat.c};--c-bg:${cat.bg}">
+      <div class="cat-head"><h2>${cat.name}</h2><span class="n">${list.length} 道</span></div><div class="grid">`+
+      list.map(d=>{
+        const ds=sorted(d.p),idx=DISHES.indexOf(d);
+        return `<article class="card">
+          <button class="photo" data-i="${idx}" aria-label="看 ${d.n} 的照片">
+            <img src="thumb/IMG_${d.p[0]}.jpg" alt="${d.n}" loading="lazy">
+            ${d.p.length>1?`<span class="count">${d.p.length} 張</span>`:""}
+          </button>
+          <h3>${d.n}</h3><p>${d.d}</p>
+          <div class="ing">${d.i.map(x=>`<span>${x}</span>`).join("")}</div>
+          <div class="meta"><span>第一次 <b>${ds[0]}</b></span><span>做過 <b>${d.p.length}</b> 次</span></div>
+        </article>`}).join("")+`</div></section>`;
+  }
+  $("#main").innerHTML=any?html:`<div class="empty">找不到「${q.replace(/[<>&"]/g,"")}」，換個關鍵字試試看</div>`;
+}
+
+// lightbox
+let cur=null,pos=0,lastFocus=null;
+function show(){
+  const id=cur.p[pos];
+  $("#lbImg").src=`img/IMG_${id}.jpg`;$("#lbImg").alt=cur.n;
+  $("#lbTitle").textContent=cur.n;
+  $("#lbDate").textContent=`${dateOf(id)}　${pos+1} / ${cur.p.length}`;
+  $("#lbPrev").hidden=$("#lbNext").hidden=cur.p.length<2;
+  [...$("#lbThumbs").children].forEach((b,i)=>b.setAttribute("aria-current",i===pos));
+}
+function open(d){
+  cur=d;pos=0;lastFocus=document.activeElement;
+  $("#lbThumbs").innerHTML=d.p.length>1?d.p.map((id,i)=>`<button data-k="${i}" aria-label="第 ${i+1} 張"><img src="thumb/IMG_${id}.jpg" alt=""></button>`).join(""):"";
+  $("#lb").hidden=false;show();$("#lbClose").focus();
+}
+function close(){$("#lb").hidden=true;lastFocus&&lastFocus.focus()}
+const step=n=>{pos=(pos+n+cur.p.length)%cur.p.length;show()};
+
+$("#main").addEventListener("click",e=>{const b=e.target.closest(".photo");if(b)open(DISHES[+b.dataset.i])});
+$("#lbThumbs").addEventListener("click",e=>{const b=e.target.closest("button");if(b){pos=+b.dataset.k;show()}});
+$("#lbPrev").onclick=()=>step(-1);$("#lbNext").onclick=()=>step(1);$("#lbClose").onclick=close;
+$("#lb").addEventListener("click",e=>{if(e.target.id==="lb")close()});
+document.addEventListener("keydown",e=>{if($("#lb").hidden)return;if(e.key==="Escape")close();if(e.key==="ArrowLeft")step(-1);if(e.key==="ArrowRight")step(1)});
+$("#q").addEventListener("input",e=>render(e.target.value));
+
+stats();render();
+</script>
+
+</body>
+</html>
