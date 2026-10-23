@@ -288,11 +288,6 @@ details.field[open] summary::before{transform:rotate(90deg)}
 .cooked[aria-pressed="true"]{background:var(--mint-bg);border-color:var(--mint);color:var(--ink);font-weight:700}
 .cooked:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
 .day.done{opacity:.75}
-/* 好久沒做 */
-.longago{display:flex;flex-wrap:wrap;gap:6px}
-.longago button{font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:2px dashed var(--line);border-radius:999px;padding:4px 12px;cursor:pointer}
-.longago button:hover,.longago button:focus-visible{border-color:var(--cta);outline:none}
-.longago small{color:var(--soft);margin-left:4px}
 /* 購物模式 */
 .shopmode{position:fixed;inset:0;z-index:35;background:var(--paper);overflow:auto;
   padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
@@ -371,7 +366,6 @@ details.field[open] summary::before{transform:rotate(90deg)}
         <div class="have" id="haveSel"></div>
         <div><button class="btn small" id="haveClear" hidden>清除已選食材</button></div>
       </details>
-      <div class="field" id="longAgoBox" hidden><span class="lbl">好久沒做的菜 <span class="hint">點一下加進這週</span></span><div class="longago" id="longAgo"></div></div>
       <div class="plan-actions">
         <p class="hint" style="flex:1 1 100%;margin:0">改天數或道數，下面的菜單會自動更新。想整週換一批，按這顆（鎖住的菜不會換）。</p>
         <button class="btn primary" id="planBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>幫我排菜單</button>
@@ -1051,7 +1045,6 @@ $("#menuView").addEventListener("click",e=>{
   else if(b.id==="planBtn"){makePlan()}
   else if(b.dataset.pick){const [d,i]=b.dataset.pick.split(",").map(Number);pickFor(d,i)}
   else if(b.dataset.cooked!==undefined){toggleCooked(+b.dataset.cooked)}
-  else if(b.dataset.addname){addToPlan(byName.get(b.dataset.addname))}
   else if(b.id==="shopModeBtn"){openShopMode()}
   else if(b.id==="shareBtn"){openShare()}
   else if(b.id==="useIncoming"){useIncoming()}
@@ -1147,14 +1140,7 @@ function toggleCooked(day){
     const d=todayStr();M.cooked[day]=d;LOG.push({d,day,week:M.week,n:names});
     toast(`記下來了：${d} 煮了 ${names.join("、")}`);
   }
-  saveLog();saveM();renderPlan();renderLongAgo();render($("#q").value);
-}
-function renderLongAgo(){
-  const used=new Set(Object.values(M.plan||{}).flat().map(r=>r.n));
-  const xs=DISHES.filter(d=>timesMade(d)>=2&&!used.has(d.n)).map(d=>({d,last:lastMade(d)}))
-    .filter(x=>daysSince(x.last)>90).sort((a,b)=>a.last.localeCompare(b.last)).slice(0,6);
-  $("#longAgoBox").hidden=!xs.length;
-  $("#longAgo").innerHTML=xs.map(x=>`<button data-addname="${x.d.n}">+ ${x.d.n}<small>${ago(x.last)}</small></button>`).join("");
+  saveLog();saveM();renderPlan();render($("#q").value);
 }
 
 // ---------- 對話框與提示 ----------
@@ -1186,7 +1172,7 @@ function addToPlan(d){
     let msg;
     if(i>=0){msg=`已加到${WEEK[day]}，換掉了${rows[i].n}`;rows[i]={slot:rows[i].slot,n:d.n,lock:true}}
     else{rows.push({slot:slotFor(d),n:d.n,lock:true});msg=`已加到${WEEK[day]}（多一道菜）`}
-    saveM();renderPlan();renderLongAgo();closeDlg();toast(msg);
+    saveM();renderPlan();closeDlg();toast(msg);
   };
 }
 function pickFor(day,i){
@@ -1201,7 +1187,7 @@ function pickFor(day,i){
   $("#dlgBody").onclick=e=>{
     const b=e.target.closest("[data-pick-n]");if(!b)return;
     M.plan[day][i]={slot:row.slot,n:b.dataset.pickN,lock:true};
-    saveM();renderPlan();renderLongAgo();closeDlg();toast(`${WEEK[day]}改成${b.dataset.pickN}，已鎖住`);
+    saveM();renderPlan();closeDlg();toast(`${WEEK[day]}改成${b.dataset.pickN}，已鎖住`);
   };
 }
 
@@ -1250,7 +1236,7 @@ function showIncoming(){
 }
 function useIncoming(){
   Object.assign(M,{meal:incoming.meal,days:incoming.days,plan:incoming.plan,have:incoming.have,checked:incoming.checked,prices:{...M.prices,...incoming.prices},cooked:{}});
-  incoming=null;$("#incoming").innerHTML="";saveM();renderSettings();renderPlan();renderLongAgo();
+  incoming=null;$("#incoming").innerHTML="";saveM();renderSettings();renderPlan();
   try{history.replaceState(null,"","#menu")}catch(e){}
   toast("已換成分享的菜單");
 }
@@ -1288,7 +1274,7 @@ renderSettings();
 if(!M.plan)makePlan();else{syncDays();saveM();renderPlan()}
 // 「已煮好」只保留一週，下週重新排時就不會卡住
 if(M.cooked){for(const [d,t] of Object.entries(M.cooked))if(daysSince(t)>=7)delete M.cooked[d];saveM();renderPlan()}
-renderLongAgo();
+
 if(location.hash.startsWith("#p=")){incoming=decodePlan(location.hash.slice(3));showView("menu");if(incoming)showIncoming();else toast("這個分享連結看不懂，可能被截斷了")}
 else if(location.hash==="#menu")showView("menu");
 else if(location.hash==="#text")showView("text");
