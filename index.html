@@ -60,6 +60,8 @@ nav.bar .wrap{padding-block:10px;display:flex;flex-wrap:wrap;gap:10px;align-item
 .search input:focus{border-color:var(--pink)}
 .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--soft)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
+.seg.mode button{font-size:13px;padding:5px 12px}
+.tag{align-self:flex-start;font-size:11px;color:var(--soft);border:1.5px solid var(--line);border-radius:999px;padding:0 8px;margin-bottom:-4px}
 .chip{font:inherit;font-size:13px;color:var(--ink);border:0;border-radius:999px;padding:6px 12px;cursor:pointer;background:var(--c-bg);white-space:nowrap}
 .chip small{color:var(--soft);margin-left:3px;font-variant-numeric:tabular-nums}
 .chip:hover,.chip:focus-visible{outline:2px solid var(--c);outline-offset:1px}
@@ -228,6 +230,9 @@ details.field[open] summary::before{transform:rotate(90deg)}
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
       <input id="q" type="search" placeholder="搜尋菜名或食材，例如：鮭魚、豆腐" autocomplete="off">
     </label>
+    <div class="seg mode" id="groupSel" role="group" aria-label="分類方式">
+      <button data-g="cat">依菜色</button><button data-g="cuisine">依菜系</button>
+    </div>
     <div class="chips" id="chips"></div>
   </div>
 </nav>
@@ -279,6 +284,28 @@ const CATS=[
   {k:"soup",name:"湯・鍋物",c:"var(--peach)",bg:"var(--peach-bg)"},
   {k:"main",name:"飯・麵",c:"var(--lilac)",bg:"var(--lilac-bg)"}
 ];
+const CUISINES=[
+  {k:"tw",name:"台式",c:"var(--peach)",bg:"var(--peach-bg)"},
+  {k:"jp",name:"日式",c:"var(--pink)",bg:"var(--pink-bg)"},
+  {k:"it",name:"義式",c:"var(--mint)",bg:"var(--mint-bg)"},
+  {k:"west",name:"西式",c:"var(--sky)",bg:"var(--sky-bg)"},
+  {k:"kr",name:"韓式",c:"var(--lilac)",bg:"var(--lilac-bg)"},
+  {k:"th",name:"泰式",c:"var(--butter)",bg:"var(--butter-bg)"}
+];
+// 沒列出來的都算台式家常
+const CUISINE_OF={
+  "照燒雞腿":"jp","薑燒豬肉":"jp","洋蔥燒雞腿":"jp","馬鈴薯燉肉":"jp","涮豬肉片佐醬":"jp","烤鯖魚":"jp","味噌豆腐湯":"jp",
+  "壽喜燒":"jp","味噌豆乳番茄鍋":"jp","親子丼":"jp","牛丼":"jp","雞肉優格咖哩飯":"jp","金沙杏鮑菇":"tw",
+  "鮮蝦義大利麵":"it","鮭魚奶油義大利麵":"it","奶油蔬菜義大利麵":"it","茄汁櫛瓜義大利麵":"it","肉醬義大利麵":"it",
+  "香煎奶油鮭魚":"west","紙包烤鮭魚":"west","香煎鱸魚排":"west","煎牛排":"west","骰子牛":"west","香煎雞腿時蔬":"west",
+  "蒜香奶油蝦":"west","番茄紅蘿蔔燉牛肉":"west","番茄牛肉湯":"west","生菜沙拉":"west","馬鈴薯沙拉":"west","煎櫛瓜":"west",
+  "歐姆蛋":"west","雞胸肉健康餐盒":"west",
+  "韓式辣炒豬肉":"kr","韓式泡菜鍋":"kr",
+  "綠咖哩雞":"th"
+};
+const cuisineOf=d=>CUISINE_OF[d.n]||"tw";
+let groupBy="cat";
+try{if(localStorage.getItem("kitchen-group")==="cuisine")groupBy="cuisine"}catch(e){}
 
 // 第一張照片是封面
 const DISHES=[
@@ -422,11 +449,15 @@ function stats(){
 
 function render(q=""){
   q=q.trim().toLowerCase();
-  const match=d=>!q||d.n.toLowerCase().includes(q)||d.i.some(x=>x.toLowerCase().includes(q))||d.d.includes(q);
+  const nameOf=(arr,k)=>arr.find(x=>x.k===k).name;
+  const match=d=>!q||d.n.toLowerCase().includes(q)||d.i.some(x=>x.toLowerCase().includes(q))||d.d.includes(q)||nameOf(CUISINES,cuisineOf(d)).includes(q);
+  const groups=groupBy==="cuisine"?CUISINES:CATS, keyOf=groupBy==="cuisine"?cuisineOf:d=>d.c;
+  // 卡片上標示另一種分類
+  const tagOf=groupBy==="cuisine"?d=>nameOf(CATS,d.c):d=>nameOf(CUISINES,cuisineOf(d));
   let html="",any=false;
   $("#chips").innerHTML="";
-  for(const cat of CATS){
-    const list=DISHES.filter(d=>d.c===cat.k&&match(d)).sort((a,b)=>b.p.length-a.p.length);
+  for(const cat of groups){
+    const list=DISHES.filter(d=>keyOf(d)===cat.k&&match(d)).sort((a,b)=>b.p.length-a.p.length);
     const chip=document.createElement("button");
     chip.className="chip";chip.style.setProperty("--c",cat.c);chip.style.setProperty("--c-bg",cat.bg);
     chip.innerHTML=`${cat.name}<small>${list.length}</small>`;
@@ -444,6 +475,7 @@ function render(q=""){
             <img src="${thumb(d.p[0])}" alt="${d.n}" loading="lazy">
             ${d.p.length>1?`<span class="count">${d.p.length} 張</span>`:""}
           </button>
+          <span class="tag">${tagOf(d)}</span>
           <h3>${d.n}</h3><p>${d.d}</p>
           <div class="ing">${d.i.map(x=>`<span>${x}</span>`).join("")}</div>
           <div class="meta"><span>第一次 <b>${ds[0]}</b></span><span>做過 <b>${d.p.length}</b> 次</span></div>
@@ -491,6 +523,14 @@ $("#lbPrev").onclick=()=>step(-1);$("#lbNext").onclick=()=>step(1);$("#lbClose")
 $("#lb").addEventListener("click",e=>{if(e.target.id==="lb")close()});
 document.addEventListener("keydown",e=>{if($("#lb").hidden)return;if(e.key==="Escape")close();if(e.key==="ArrowLeft")step(-1);if(e.key==="ArrowRight")step(1)});
 $("#q").addEventListener("input",e=>render(e.target.value));
+function setGroup(g){
+  groupBy=g;
+  [...$("#groupSel").children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===g));
+  try{localStorage.setItem("kitchen-group",g)}catch(e){}
+  render($("#q").value);
+}
+$("#groupSel").addEventListener("click",e=>{const b=e.target.closest("button");if(b)setGroup(b.dataset.g)});
+[...$("#groupSel").children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===groupBy));
 
 stats();render();
 
