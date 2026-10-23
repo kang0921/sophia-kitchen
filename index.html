@@ -181,6 +181,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
 .item label{display:grid;line-height:1.3;cursor:pointer;min-width:0}
 .item label small{color:var(--soft);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item.done label span{text-decoration:line-through;color:var(--soft)}
+.qty{font-weight:700;color:var(--cta);font-size:13px}
 .price{display:flex;align-items:baseline;gap:1px;font-size:13px;color:var(--soft);font-variant-numeric:tabular-nums}
 .price input{width:52px;font:inherit;font-size:14px;color:var(--ink);background:transparent;border:0;border-bottom:1.5px dashed var(--line);text-align:right;padding:1px 2px;-moz-appearance:textfield}
 .price input::-webkit-inner-spin-button,.price input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
@@ -253,6 +254,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
         <div><button class="btn small" id="haveClear" hidden>清除已選食材</button></div>
       </details>
       <div class="plan-actions">
+        <p class="hint" style="flex:1 1 100%;margin:0">改天數或道數，下面的菜單會自動更新。想整週換一批，按這顆（鎖住的菜不會換）。</p>
         <button class="btn primary" id="planBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>幫我排菜單</button>
       </div>
     </div>
@@ -438,6 +440,9 @@ const DISHES=[
 
 const $=s=>document.querySelector(s);
 const full=id=>`img/IMG_${id}.webp`,thumb=id=>`thumb/IMG_${id}.webp`,mini=id=>`mini/IMG_${id}.webp`;
+// 每道菜的封面是從第一張照片裁出那道菜的特寫
+const COVER={"照燒雞腿":"000","洋蔥炒肉片":"001","薑燒豬肉":"002","香煎雞腿時蔬":"003","洋蔥燒雞腿":"004","紅燒雞腿":"005","炒雞柳":"006","青椒炒牛肉":"007","洋蔥炒牛肉":"008","高麗菜炒牛肉":"009","醬爆牛肉片":"010","煎牛排":"011","骰子牛":"012","番茄紅蘿蔔燉牛肉":"013","馬鈴薯燉肉":"014","韓式辣炒豬肉":"015","蔥爆肉片":"016","豆干炒肉絲":"017","什錦蔬菜炒肉片":"018","豆芽炒肉片":"019","涮豬肉片佐醬":"020","香煎奶油鮭魚":"021","紙包烤鮭魚":"022","清蒸鱸魚":"023","香煎鱸魚排":"024","烤鯖魚":"025","絲瓜燴鮮蝦":"026","絲瓜蛤蜊炒蛋":"027","蒜香奶油蝦":"028","鹽烤鮮蝦":"029","蝦仁燴豆腐":"030","番茄炒蛋":"031","雞蛋豆腐":"032","菇菇豆腐":"033","家常豆腐":"034","青江菜燴豆腐":"035","豆腐炒蛋":"036","皮蛋豆腐":"037","滷豆干":"038","小白菜炒蛋":"039","高麗菜炒蛋":"040","竹筍炒蛋":"041","玉米炒蛋":"042","九層塔烘蛋":"043","烘蛋":"044","歐姆蛋":"045","荷包蛋":"046","清炒高麗菜":"047","香菇炒高麗菜":"048","竹輪炒高麗菜":"049","燙大陸妹":"050","香菇炒大陸妹":"051","大陸妹炒玉米筍":"052","燙青江菜":"053","青江菜炒杏鮑菇":"054","青江菜炒紅蘿蔔":"055","炒水蓮":"056","清炒花椰菜":"057","白花椰炒香菇":"058","煎櫛瓜":"059","炒櫛瓜":"060","金沙杏鮑菇":"061","香菇炒杏鮑菇":"062","莧菜蛋花":"063","木耳香菇炒青菜":"064","金針菇炒紅蘿蔔絲":"065","香菇炒牛蒡":"066","白菜炒木耳":"067","什錦炒時蔬":"068","炒四季豆":"069","金針菇炒豆芽":"070","炒白蘿蔔絲":"071","生菜沙拉":"072","馬鈴薯沙拉":"073","蒜頭香菇雞湯":"074","香菇竹筍雞湯":"075","玉米高麗菜雞湯":"076","味噌豆乳番茄鍋":"077","壽喜燒":"078","韓式泡菜鍋":"079","什錦豆腐鍋":"080","番茄高麗菜排骨湯":"081","竹筍蘿蔔排骨湯":"082","番茄牛肉湯":"083","番茄白菜豆腐鍋":"084","白菜豬肉片湯":"085","絲瓜肉片湯":"086","絲瓜金針菇湯":"087","味噌豆腐湯":"088","海帶芽蛋花湯":"089","菠菜蛋花湯":"090","青江菜豆腐湯":"091","竹輪豆腐湯":"092","貢丸湯":"093","豆腐魚湯":"094","蛤蜊蛋花鍋":"095","鮮蝦白菜豆腐鍋":"096","鮮蝦雞肉湯鍋":"097","雞肉蔬菜鍋":"098","高麗菜荷包蛋鍋":"099","玉米蛋花湯":"100","雞肉優格咖哩飯":"101","綠咖哩雞":"102","親子丼":"103","牛丼":"104","香菇雞肉鹹粥":"105","雞胸肉健康餐盒":"106","鮮蝦義大利麵":"107","鮭魚奶油義大利麵":"108","奶油蔬菜義大利麵":"109","茄汁櫛瓜義大利麵":"110","肉醬義大利麵":"111","番茄牛肉麵":"112","牛肉湯麵":"113","雞絲湯麵":"114","白菜豬肉湯麵":"115","番茄蔬菜泡麵":"116"};
+const cover=d=>COVER[d.n]?`cover/D${COVER[d.n]}.webp`:thumb(d.p[0]);
 const dateOf=id=>DATES[id]||"";
 const sorted=ids=>[...ids].map(dateOf).filter(Boolean).sort();
 
@@ -474,7 +479,7 @@ function render(q=""){
         const ds=sorted(d.p),idx=DISHES.indexOf(d);
         return `<article class="card">
           <button class="photo" data-i="${idx}" aria-label="看 ${d.n} 的照片">
-            <img src="${thumb(d.p[0])}" alt="${d.n}" loading="lazy">
+            <img src="${cover(d)}" alt="${d.n}" loading="lazy">
             ${d.p.length>1?`<span class="count">${d.p.length} 張</span>`:""}
           </button>
           <div class="tags"><span class="tag">${tagOf(d)}</span><span class="tag kc">約 ${KCAL[d.n]||200} kcal</span></div>
@@ -499,7 +504,7 @@ function show(){
   hi.src=full(id);loaded.add(id);
   if(hi.complete&&hi.naturalWidth){img.src=hi.src;img.classList.remove("soft")}
   else{
-    img.src=pos===0?thumb(id):mini(id);img.classList.add("soft");
+    img.src=mini(id);img.classList.add("soft");
     hi.onload=()=>{if(cur&&cur.p[pos]===id){img.src=hi.src;img.classList.remove("soft")}};
   }
   if(cur.p.length>1){preload(cur.p[(pos+1)%cur.p.length]);preload(cur.p[(pos-1+cur.p.length)%cur.p.length])}
@@ -610,6 +615,17 @@ const PROTEINS=[
 ];
 const priceOf=x=>{const o=M.prices&&M.prices[x];return Number.isFinite(o)?o:(PRICE[x]?PRICE[x][0]:40)};
 const unitOf=x=>PRICE[x]?PRICE[x][1]:"份";
+// 一份大約夠煮幾道菜（兩人份），沒列的算 1 道
+const USES={"蛋":3,"紅蘿蔔":3,"白菜":2,"香菇":2,"番茄":2,"洋蔥":2,"高麗菜":2,"玉米":2,"櫛瓜":2,"玉米筍":2,"杏鮑菇":2,"麵條":2,
+  "義大利麵":3,"木耳":3,"竹輪":2,"白蘿蔔":2,"豆干":2,"寬麵":3,"油豆腐":2,"鮮奶油":2,"海帶芽":6,"貢丸":2,"優格":2,"牛蒡":2,"泡菜":3,
+  "青椒":2,"檸檬":3,"魚板":2,"九層塔":2,"豆乳":2,"生菜":2,"鹹蛋黃":2,"皮蛋":2,"芹菜":2};
+const usesOf=x=>USES[x]||1;
+// 要付的錢＝買幾份 × 價格；用掉的價值＝實際用到的比例
+function costOf(need){
+  let pay=0,used=0;const packs=new Map();
+  for(const [x,ds] of need){const k=Math.ceil(ds.length/usesOf(x));packs.set(x,k);pay+=k*priceOf(x);used+=ds.length/usesOf(x)*priceOf(x)}
+  return {pay,used,packs};
+}
 const proteinsOf=d=>PROTEINS.filter(p=>d.i.some(x=>p.re.test(x))).map(p=>p.k);
 const ICON={
   swap:'<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg>',
@@ -642,7 +658,7 @@ function weight(d,slot,have,ctx){
   if(have.size)w*=m?1+3*m:0.3;                       // 用得到冰箱食材的優先
   if(slot==="main"&&d.c==="main")w*=0.5;             // 飯麵類偶爾當主菜
   // 省錢：要另外買的食材越貴越少選；跟這週其他菜共用食材的加分
-  const extra=d.i.filter(x=>!STAPLES.has(x)&&!have.has(x)&&!ctx.ingr.has(x)).reduce((a,x)=>a+priceOf(x),0);
+  const extra=d.i.filter(x=>!STAPLES.has(x)&&!have.has(x)&&!ctx.ingr.has(x)).reduce((a,x)=>a+priceOf(x)/usesOf(x),0);
   w*=1/(1+extra/300);
   // 均衡：同一種蛋白質這週出現越多次越少選；帶來新蔬菜的加分
   const ps=proteinsOf(d);
@@ -692,6 +708,23 @@ function swapDish(day,i){
   row.n=d.n;row.lock=false;saveM();renderPlan();
 }
 
+// 加一天：只排那一天，其他天不動
+function addDay(day){
+  if(!M.plan){makePlan();return}
+  const used=new Set(Object.values(M.plan).flat().map(r=>r.n));
+  const before=Object.keys(M.plan).map(Number).filter(d=>d<day).sort((a,b)=>a-b);
+  const prev=before.length?M.plan[before.at(-1)].find(r=>r.slot==="main"||r.slot==="pot"):null;
+  const lastTag=prev&&byName.get(prev.n)?proteinTag(byName.get(prev.n)):null;
+  M.plan[day]=mealOf(M.meal).slots.map(slot=>{
+    const d=pick(slot,used,slot==="main"||slot==="pot"?lastTag:null);used.add(d.n);return {slot,n:d.n,lock:false};
+  });
+}
+// 讓菜單的天數跟設定一致
+function syncDays(){
+  if(!M.plan)return;
+  for(const d of Object.keys(M.plan).map(Number))if(!M.days.includes(d))delete M.plan[d];
+  for(const d of M.days)if(!M.plan[d])addDay(d);
+}
 function renderSettings(){
   $("#daysSel").innerHTML=WEEK.map((w,i)=>`<button data-day="${i}" aria-pressed="${M.days.includes(i)}">${w.slice(2)}</button>`).join("");
   $("#mealSel").innerHTML=MEALS.map(m=>`<button data-meal="${m.k}" aria-pressed="${M.meal===m.k}">${m.name}</button>`).join("");
@@ -719,7 +752,7 @@ function renderPlan(){
       const d=byName.get(r.n); if(!d)return "";
       const hits=d.i.filter(x=>have.has(x));
       return `<li class="dish-row">
-        <button class="thumb" data-open="${d.n}" aria-label="看 ${d.n} 的照片"><img src="${mini(d.p[0])}" alt="" loading="lazy"></button>
+        <button class="thumb" data-open="${d.n}" aria-label="看 ${d.n} 的照片"><img src="${cover(d)}" alt="" loading="lazy"></button>
         <div class="dn"><span class="slot">${SLOT[r.slot].name} · 約 ${KCAL[d.n]||200} kcal</span><b>${d.n}</b>
           <small>${hits.length?`用掉 ${hits.map(x=>`<em>${x}</em>`).join(" ")}`:d.i.filter(x=>!STAPLES.has(x)).join("、")}</small></div>
         <div class="ops">
@@ -747,8 +780,8 @@ function planDays(){return Object.keys(M.plan||{}).map(Number).sort((a,b)=>a-b)}
 function renderSummary(){
   if(!M.plan||!planDays().length){$("#sumOut").innerHTML="";return}
   const days=planDays(), {need}=shopData();
-  const total=[...need.keys()].reduce((a,x)=>a+priceOf(x),0);
-  const top=[...need.keys()].sort((a,b)=>priceOf(b)-priceOf(a)).slice(0,3);
+  const cost=costOf(need),total=cost.pay;
+  const top=[...need.keys()].sort((a,b)=>cost.packs.get(b)*priceOf(b)-cost.packs.get(a)*priceOf(a)).slice(0,3);
   // 均衡度
   const all=days.flatMap(d=>M.plan[d].map(r=>byName.get(r.n)).filter(Boolean));
   const prot={};all.forEach(d=>proteinsOf(d).forEach(p=>prot[p]=(prot[p]||0)+1));
@@ -772,8 +805,9 @@ function renderSummary(){
   const avg=kcal.reduce((a,b)=>a+b,0)/kcal.length;
   $("#sumOut").innerHTML=`<div class="panel sum">
     <section><h3 class="sh">預估花費</h3><div class="big">${money(total)}</div>
-      <p class="hint">平均每天約 ${money(total/days.length)}，以「每樣食材買一份」估算，可在購物清單改成實際價格</p>
-      ${top.length?`<p class="hint">最貴的：${top.map(x=>`${x} ${money(priceOf(x))}`).join("、")}</p>`:""}</section>
+      <p class="hint">這是買菜要付的錢。這週實際用掉約 <b>${money(cost.used)}</b>，平均每天 ${money(cost.used/days.length)}，買多的（例如半盒蛋）可以留到下週。</p>
+      ${top.length?`<p class="hint">花最多的：${top.map(x=>`${x} ${money(cost.packs.get(x)*priceOf(x))}`).join("、")}</p>`:""}
+      <p class="hint">價格是估的，可以在購物清單改成實際價格。</p></section>
     <section><h3 class="sh">均衡度</h3>
       <div class="pbars">${PROTEINS.map(p=>`<div class="pbar"><span>${p.name}</span><i><b style="width:${(prot[p.k]||0)/maxP*100}%"></b></i><em>${prot[p.k]||0}</em></div>`).join("")}</div>
       <ul class="tips">${tips.map(x=>`<li class="${x.ok?"ok":"warn"}">${x.t}</li>`).join("")}</ul></section>
@@ -787,14 +821,14 @@ function renderShop(){
   const {need,haveUsed,staples}=shopData();
   const checked=new Set(M.checked);
   const done=[...need.keys()].filter(x=>checked.has(x)).length;
-  const total=[...need.keys()].reduce((a,x)=>a+priceOf(x),0);
+  const cost=costOf(need),total=cost.pay;
   $("#shopOut").innerHTML=`<h2 class="ph">購物清單</h2><p class="hint">要買 ${need.size} 樣，約 ${money(total)}，已買 ${done} 樣。價格可以直接改。</p>`+
     GROUPS.map(g=>{
       const xs=[...need].filter(([x])=>groupOf(x)===g.k);
       return xs.length?`<div class="grp"><h4>${g.name}</h4>`+xs.map(([x,ds])=>
         `<div class="item${checked.has(x)?" done":""}">
           <input type="checkbox" id="buy-${x}" data-buy="${x}"${checked.has(x)?" checked":""}>
-          <label for="buy-${x}"><span>${x}</span><small>${ds.length>1?ds.length+" 道菜":ds[0]}</small></label>
+          <label for="buy-${x}"><span>${x}${cost.packs.get(x)>1?` <b class="qty">×${cost.packs.get(x)}</b>`:""}</span><small>${ds.length>1?ds.length+" 道菜":ds[0]}</small></label>
           <span class="price${M.prices&&Number.isFinite(M.prices[x])?" edited":""}">$<input type="number" inputmode="numeric" min="0" step="5" id="price-${x}" data-price="${x}" value="${priceOf(x)}" aria-label="${x} 的價格"><small>/${unitOf(x)}</small></span>
         </div>`).join("")+`</div>`:"";
     }).join("")+
@@ -807,8 +841,9 @@ function planText(){
   const {need}=shopData();
   const days=Object.keys(M.plan).map(Number).sort((a,b)=>a-b);
   let t="【本週菜單】\n"+days.map(d=>`${WEEK[d]}：${M.plan[d].map(r=>r.n).join("、")}`).join("\n")+"\n\n【購物清單】\n";
-  for(const g of GROUPS){const xs=[...need.keys()].filter(x=>groupOf(x)===g.k);if(xs.length)t+=`${g.name}：${xs.join("、")}\n`}
-  t+=`\n預估花費：約 ${money([...need.keys()].reduce((a,x)=>a+priceOf(x),0))}`;
+  const cost=costOf(need);
+  for(const g of GROUPS){const xs=[...need.keys()].filter(x=>groupOf(x)===g.k);if(xs.length)t+=`${g.name}：${xs.map(x=>cost.packs.get(x)>1?`${x}×${cost.packs.get(x)}`:x).join("、")}\n`}
+  t+=`\n預估花費：約 ${money(cost.pay)}（實際用掉約 ${money(cost.used)}）`;
   return t.trim();
 }
 
@@ -816,8 +851,10 @@ $("#menuView").addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b)return;
   if(b.dataset.day!==undefined){
     const i=+b.dataset.day; M.days=M.days.includes(i)?M.days.filter(x=>x!==i):[...M.days,i].sort((a,b)=>a-b);
-    saveM();renderSettings();
-  }else if(b.dataset.meal){M.meal=b.dataset.meal;saveM();renderSettings()}
+    syncDays();saveM();renderSettings();renderPlan();
+  }else if(b.dataset.meal){
+    if(M.meal!==b.dataset.meal){M.meal=b.dataset.meal;renderSettings();makePlan()}
+  }
   else if(b.dataset.have){
     const x=b.dataset.have; M.have=M.have.includes(x)?M.have.filter(y=>y!==x):[...M.have,x];
     saveM();renderSettings();if(M.plan)renderPlan();
@@ -858,7 +895,7 @@ $("#tabList").onclick=()=>showView("list");
 $("#tabMenu").onclick=()=>showView("menu");
 stats();render();
 renderSettings();
-if(!M.plan)makePlan();else renderPlan();
+if(!M.plan)makePlan();else{syncDays();saveM();renderPlan()}
 if(location.hash==="#menu")showView("menu");
 </script>
 
