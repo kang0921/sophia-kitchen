@@ -120,6 +120,7 @@ footer{color:var(--soft);font-size:13px;text-align:center;padding-block:0 40px}
 .tab{font:inherit;font-family:var(--f-display);font-size:18px;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:14px 14px 4px 14px;padding:8px 20px;cursor:pointer}
 .tab[aria-selected="true"]{background:var(--butter-bg);border-color:var(--butter);transform:rotate(-1.5deg)}
 .tab:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+@media (max-width:520px){.tab{flex:1 1 0;font-size:16px;padding:8px 6px;white-space:nowrap;text-align:center}}
 
 /* weekly menu */
 .menu{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:24px;align-items:start;padding-block:8px 60px}
@@ -212,6 +213,33 @@ details.field[open] summary::before{transform:rotate(90deg)}
 .copymsg{font-size:13px;color:var(--soft)}
 .copybox{width:100%;min-height:140px;margin-top:10px;font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:8px}
 .empty-plan{color:var(--soft);margin-top:20px}
+/* 文字清單 */
+.textview{padding-block:8px 60px}
+.tl-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:14px}
+.tl-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;flex:1 1 320px;justify-content:flex-end}
+.tl-tools .search{flex:1 1 200px;max-width:320px}
+.tl{list-style:none;margin:0;padding:0;background:var(--card);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.tl li{border-bottom:1.5px dashed var(--line)}
+.tl li:last-child{border-bottom:0}
+.tl-head{font:inherit;color:var(--ink);background:none;border:0;width:100%;text-align:left;cursor:pointer;display:grid;grid-template-columns:34px minmax(0,1fr) minmax(60px,30%) 56px;align-items:center;gap:10px;padding:10px 14px}
+.tl-head:hover{background:var(--paper)}
+.tl-head:focus-visible{outline:3px solid var(--pink);outline-offset:-3px}
+.rank{font-family:var(--f-display);font-size:15px;color:var(--soft);text-align:center;font-variant-numeric:tabular-nums}
+.tl li:nth-child(-n+3) .rank{color:var(--ink);background:var(--butter-bg);border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
+.tl.sorted-other li .rank{background:none!important;color:var(--soft)!important}
+.tl-name{min-width:0;display:grid;line-height:1.35}
+.tl-name b{font-weight:500;font-size:16px}
+.tl-name small{color:var(--soft);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-bar{height:10px;background:var(--grid);border-radius:999px;overflow:hidden}
+.tl-bar i{display:block;height:100%;background:var(--pink);border-radius:999px}
+.tl-n{text-align:right;font-variant-numeric:tabular-nums;font-size:14px}
+.tl-n b{font-family:var(--f-display);font-weight:400;font-size:20px}
+.tl-photos{display:flex;gap:8px;overflow-x:auto;padding:4px 14px 14px 58px}
+.tl-photos button{flex:0 0 auto;border:0;padding:0;border-radius:8px;overflow:hidden;cursor:zoom-in;background:var(--grid);display:grid;justify-items:center}
+.tl-photos button:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.tl-photos img{width:120px;height:120px;object-fit:cover;display:block}
+.tl-photos small{font-size:11px;color:var(--soft);padding:3px 0;font-variant-numeric:tabular-nums}
+@media (max-width:520px){.tl-head{grid-template-columns:28px minmax(0,1fr) 52px;padding:10px}.tl-bar{display:none}.tl-photos{padding-left:10px}.tl-photos img{width:96px;height:96px}}
 /* 加入菜單的小按鈕 */
 .add-fab{position:absolute;top:18px;right:18px;z-index:2;width:36px;height:36px;border-radius:50%;border:0;background:var(--cta);color:#fff;font-size:24px;line-height:1;cursor:pointer;box-shadow:0 3px 0 var(--cta-deep);display:grid;place-items:center}
 .add-fab:hover{transform:translateY(-1px)}
@@ -282,6 +310,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
 
 <div class="tabs wrap" role="tablist" aria-label="切換頁面">
   <button class="tab" role="tab" id="tabList" aria-selected="true" aria-controls="main">料理清單</button>
+  <button class="tab" role="tab" id="tabText" aria-selected="false" aria-controls="textView">文字清單</button>
   <button class="tab" role="tab" id="tabMenu" aria-selected="false" aria-controls="menuView">本週菜單</button>
 </div>
 
@@ -299,6 +328,22 @@ details.field[open] summary::before{transform:rotate(90deg)}
 </nav>
 
 <main class="wrap" id="main"></main>
+
+<section class="wrap textview" id="textView" hidden aria-label="文字清單">
+  <div class="tl-top">
+    <div><h2 class="ph" style="margin:0">最常煮的菜</h2><p class="hint" style="margin:4px 0 0">點菜名可以看照片。次數＝照片裡出現的次數，加上「今天煮了」的紀錄。</p></div>
+    <div class="tl-tools">
+      <label class="search" for="tq">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="tq" type="search" placeholder="搜尋菜名或食材" autocomplete="off">
+      </label>
+      <div class="seg" id="tlSort" role="group" aria-label="排序">
+        <button data-sort="count" aria-pressed="true">最常煮</button><button data-sort="recent" aria-pressed="false">最近煮</button><button data-sort="name" aria-pressed="false">依名稱</button>
+      </div>
+    </div>
+  </div>
+  <ol class="tl" id="tlList"></ol>
+</section>
 
 <section class="menu wrap" id="menuView" hidden aria-label="本週菜單">
   <div style="min-width:0">
@@ -975,13 +1020,47 @@ $("#menuView").addEventListener("change",e=>{
 });
 
 function showView(v){
-  const menu=v==="menu";
-  $("#tabList").setAttribute("aria-selected",!menu);$("#tabMenu").setAttribute("aria-selected",menu);
-  $("nav.bar").hidden=menu;$("#main").hidden=menu;$("#menuView").hidden=!menu;$("#shopFab").hidden=!menu;
-  try{history.replaceState(null,"",menu?"#menu":location.pathname+location.search)}catch(e){}
+  const menu=v==="menu",text=v==="text",list=!menu&&!text;
+  $("#tabList").setAttribute("aria-selected",list);$("#tabText").setAttribute("aria-selected",text);$("#tabMenu").setAttribute("aria-selected",menu);
+  $("nav.bar").hidden=!list;$("#main").hidden=!list;$("#textView").hidden=!text;$("#menuView").hidden=!menu;$("#shopFab").hidden=!menu;
+  if(text)renderText();
+  try{history.replaceState(null,"",menu?"#menu":text?"#text":location.pathname+location.search)}catch(e){}
 }
 $("#tabList").onclick=()=>showView("list");
+$("#tabText").onclick=()=>showView("text");
 $("#tabMenu").onclick=()=>showView("menu");
+
+// ---------- 文字清單 ----------
+let tlSort="count";const tlOpen=new Set();
+function renderText(){
+  const q=$("#tq").value.trim();
+  let xs=DISHES.filter(d=>!q||d.n.includes(q)||d.i.some(x=>x.includes(q)));
+  const by={count:(a,b)=>timesMade(b)-timesMade(a)||lastMade(b).localeCompare(lastMade(a)),
+    recent:(a,b)=>lastMade(b).localeCompare(lastMade(a)),name:(a,b)=>a.n.localeCompare(b.n,"zh-Hant")}[tlSort];
+  xs.sort(by);
+  const max=Math.max(1,...DISHES.map(timesMade));
+  $("#tlList").classList.toggle("sorted-other",tlSort!=="count"||!!q);
+  $("#tlList").innerHTML=xs.length?xs.map((d,k)=>{const n=timesMade(d),idx=DISHES.indexOf(d),open=tlOpen.has(idx);
+    return `<li><button class="tl-head" data-tl="${idx}" aria-expanded="${open}">
+      <span class="rank">${k+1}</span>
+      <span class="tl-name"><b>${d.n}</b><small>${nameOfCat(d)} · 最近 ${lastMade(d)}</small></span>
+      <span class="tl-bar" aria-hidden="true"><i style="width:${n/max*100}%"></i></span>
+      <span class="tl-n"><b>${n}</b> 次</span></button>
+      <div class="tl-photos"${open?"":" hidden"}>${open?tlPhotos(d):""}</div></li>`}).join(""):`<li class="empty" style="padding:30px">找不到符合的菜</li>`;
+}
+const nameOfCat=d=>CATS.find(c=>c.k===d.c).name+"・"+CUISINES.find(c=>c.k===cuisineOf(d)).name;
+const tlPhotos=d=>d.p.map((id,k)=>`<button data-tlimg="${DISHES.indexOf(d)},${k}" aria-label="看 ${d.n} ${dateOf(id)} 的照片"><img src="${k===0?cover(d):thumb(id)}" alt="" loading="lazy"><small>${dateOf(id)}</small></button>`).join("");
+$("#tlList").addEventListener("click",e=>{
+  const im=e.target.closest("[data-tlimg]");
+  if(im){const [i,k]=im.dataset.tlimg.split(",").map(Number);open(DISHES[i]);pos=k;show();return}
+  const h=e.target.closest("[data-tl]");if(!h)return;
+  const idx=+h.dataset.tl,box=h.nextElementSibling,opening=box.hidden;
+  if(opening){tlOpen.add(idx);box.innerHTML=tlPhotos(DISHES[idx])}else tlOpen.delete(idx);
+  box.hidden=!opening;h.setAttribute("aria-expanded",opening);
+});
+$("#tq").addEventListener("input",renderText);
+$("#tlSort").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;tlSort=b.dataset.sort;
+  [...$("#tlSort").children].forEach(x=>x.setAttribute("aria-pressed",x===b));renderText()});
 // ---------- 煮過的紀錄 ----------
 let LOG=[];
 try{LOG=JSON.parse(localStorage.getItem("kitchen-log-v1")||"[]")||[]}catch(e){LOG=[]}
@@ -1150,6 +1229,7 @@ if(M.cooked){for(const [d,t] of Object.entries(M.cooked))if(daysSince(t)>=7)dele
 renderLongAgo();
 if(location.hash.startsWith("#p=")){incoming=decodePlan(location.hash.slice(3));showView("menu");if(incoming)showIncoming();else toast("這個分享連結看不懂，可能被截斷了")}
 else if(location.hash==="#menu")showView("menu");
+else if(location.hash==="#text")showView("text");
 </script>
 
 </body>
