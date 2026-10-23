@@ -61,7 +61,9 @@ nav.bar .wrap{padding-block:10px;display:flex;flex-wrap:wrap;gap:10px;align-item
 .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--soft)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .seg.mode button{font-size:13px;padding:5px 12px}
-.tag{align-self:flex-start;font-size:11px;color:var(--soft);border:1.5px solid var(--line);border-radius:999px;padding:0 8px;margin-bottom:-4px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:-4px}
+.tag{font-size:11px;color:var(--soft);border:1.5px solid var(--line);border-radius:999px;padding:0 8px;font-variant-numeric:tabular-nums}
+.tag.kc{border-color:transparent;background:var(--butter-bg);color:var(--ink)}
 .chip{font:inherit;font-size:13px;color:var(--ink);border:0;border-radius:999px;padding:6px 12px;cursor:pointer;background:var(--c-bg);white-space:nowrap}
 .chip small{color:var(--soft);margin-left:3px;font-variant-numeric:tabular-nums}
 .chip:hover,.chip:focus-visible{outline:2px solid var(--c);outline-offset:1px}
@@ -475,7 +477,7 @@ function render(q=""){
             <img src="${thumb(d.p[0])}" alt="${d.n}" loading="lazy">
             ${d.p.length>1?`<span class="count">${d.p.length} 張</span>`:""}
           </button>
-          <span class="tag">${tagOf(d)}</span>
+          <div class="tags"><span class="tag">${tagOf(d)}</span><span class="tag kc">約 ${KCAL[d.n]||200} kcal</span></div>
           <h3>${d.n}</h3><p>${d.d}</p>
           <div class="ing">${d.i.map(x=>`<span>${x}</span>`).join("")}</div>
           <div class="meta"><span>第一次 <b>${ds[0]}</b></span><span>做過 <b>${d.p.length}</b> 次</span></div>
@@ -532,7 +534,6 @@ function setGroup(g){
 $("#groupSel").addEventListener("click",e=>{const b=e.target.closest("button");if(b)setGroup(b.dataset.g)});
 [...$("#groupSel").children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===groupBy));
 
-stats();render();
 
 // ---------- 本週菜單 ----------
 const WEEK=["星期一","星期二","星期三","星期四","星期五","星期六","星期日"];
@@ -719,7 +720,7 @@ function renderPlan(){
       const hits=d.i.filter(x=>have.has(x));
       return `<li class="dish-row">
         <button class="thumb" data-open="${d.n}" aria-label="看 ${d.n} 的照片"><img src="${mini(d.p[0])}" alt="" loading="lazy"></button>
-        <div class="dn"><span class="slot">${SLOT[r.slot].name}</span><b>${d.n}</b>
+        <div class="dn"><span class="slot">${SLOT[r.slot].name} · 約 ${KCAL[d.n]||200} kcal</span><b>${d.n}</b>
           <small>${hits.length?`用掉 ${hits.map(x=>`<em>${x}</em>`).join(" ")}`:d.i.filter(x=>!STAPLES.has(x)).join("、")}</small></div>
         <div class="ops">
           <button data-swap="${day},${i}" aria-label="換一道" title="換一道">${ICON.swap}</button>
@@ -855,6 +856,7 @@ function showView(v){
 }
 $("#tabList").onclick=()=>showView("list");
 $("#tabMenu").onclick=()=>showView("menu");
+stats();render();
 renderSettings();
 if(!M.plan)makePlan();else renderPlan();
 if(location.hash==="#menu")showView("menu");
