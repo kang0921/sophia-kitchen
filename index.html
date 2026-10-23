@@ -149,6 +149,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
 @media (max-width:520px){.btn.primary{flex:1 1 100%;justify-content:center}}
 @media (prefers-reduced-motion:reduce){.btn.primary{transition:none}.btn.primary:hover,.btn.primary:active{transform:none}}
 .btn:hover{border-color:var(--pink)}
+.btn.small{font-size:13px;padding:4px 14px;margin-top:10px}
 .days{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px 16px;margin-top:22px}
 .day{background:var(--card);border-radius:10px;padding:14px;box-shadow:var(--shadow);min-width:0;position:relative}
 .day::before{content:"";position:absolute;top:-8px;left:18px;width:60px;height:18px;background:var(--tape);transform:rotate(-4deg);border-radius:2px}
@@ -216,10 +217,10 @@ details.field[open] summary::before{transform:rotate(90deg)}
       <details class="field" id="haveBox">
         <summary><span class="lbl">冰箱裡有的食材</span><span class="hint" id="haveCount">選填，會優先用掉</span></summary>
         <div class="have" id="haveSel"></div>
+        <div><button class="btn small" id="haveClear" hidden>清除已選食材</button></div>
       </details>
       <div class="plan-actions">
         <button class="btn primary" id="planBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>幫我排菜單</button>
-        <button class="btn" id="haveClear">清除已選食材</button>
       </div>
     </div>
     <div id="planOut"></div>
@@ -562,6 +563,8 @@ function renderSettings(){
     return xs.length?`<section><h5>${g.name}</h5><div>${xs.map(x=>`<button data-have="${x}" aria-pressed="${have.has(x)}">${x}</button>`).join("")}</div></section>`:"";
   }).join("");
   $("#haveCount").textContent=M.have.length?`已選 ${M.have.length} 樣，會優先用掉`:"選填，會優先用掉";
+  $("#haveClear").hidden=!M.have.length;
+  $("#haveClear").textContent=`清除已選的 ${M.have.length} 樣食材`;
 }
 
 function renderPlan(){
