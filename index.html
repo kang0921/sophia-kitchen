@@ -785,7 +785,7 @@ function weight(d,slot,have,ctx){
   if(have.size)w*=m?1+3*m:0.3;                       // 用得到冰箱食材的優先
   if(slot==="main"&&d.c==="main")w*=0.5;             // 飯麵類偶爾當主菜
   const since=daysSince(lastMade(d));
-  if(since<7)w*=0.15; else if(since>120)w*=1.6;      // 這週剛煮過的少排，好久沒做的多排
+  if(since<7)w*=0.15;                                // 這週剛煮過的少排
   // 省錢：要另外買的食材越貴越少選；跟這週其他菜共用食材的加分
   const extra=d.i.filter(x=>!STAPLES.has(x)&&!have.has(x)&&!ctx.ingr.has(x)).reduce((a,x)=>a+priceOf(x)/usesOf(x),0);
   w*=1/(1+extra/300);
