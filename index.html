@@ -212,6 +212,64 @@ details.field[open] summary::before{transform:rotate(90deg)}
 .copymsg{font-size:13px;color:var(--soft)}
 .copybox{width:100%;min-height:140px;margin-top:10px;font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:8px}
 .empty-plan{color:var(--soft);margin-top:20px}
+/* 加入菜單的小按鈕 */
+.add-fab{position:absolute;top:18px;right:18px;z-index:2;width:36px;height:36px;border-radius:50%;border:0;background:var(--cta);color:#fff;font-size:24px;line-height:1;cursor:pointer;box-shadow:0 3px 0 var(--cta-deep);display:grid;place-items:center}
+.add-fab:hover{transform:translateY(-1px)}
+.add-fab:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+/* 共用對話框 */
+.dlg{position:fixed;inset:0;z-index:30;background:rgba(36,29,33,.55);display:flex;align-items:center;justify-content:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.dlg-box{background:var(--card);border-radius:14px;padding:16px;width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px;min-width:0}
+.dlg-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dlg-head h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:20px}
+.dlg-body{overflow:auto;min-height:0;display:grid;gap:10px}
+.daypick{display:grid;gap:8px}
+.daypick button{font:inherit;text-align:left;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;display:grid;gap:2px}
+.daypick button:hover,.daypick button:focus-visible{border-color:var(--pink);outline:none}
+.daypick b{font-family:var(--f-display);font-weight:400;font-size:17px}
+.daypick small{color:var(--soft);font-size:12px}
+.picksearch{font:inherit;width:100%;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:8px 14px}
+.picklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.picklist button{font:inherit;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;display:grid;gap:4px;text-align:left}
+.picklist button:hover,.picklist button:focus-visible{border-color:var(--pink);outline:none}
+.picklist img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;display:block}
+.picklist span{font-size:14px;line-height:1.3}
+.picklist small{font-size:11px;color:var(--soft)}
+.qr{display:grid;place-items:center;padding:8px;background:#fff;border-radius:10px;justify-self:center}
+.qr img,.qr canvas{display:block;width:200px;height:200px}
+.sharelink{width:100%;font:inherit;font-size:12px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:8px}
+/* 提示訊息 */
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+/* 分享來的菜單 */
+.incoming{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--butter-bg);border:2px dashed var(--butter);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.incoming p{margin:0;flex:1 1 220px}
+/* 每天的標題列與「煮好了」 */
+.day-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.day-head h3{margin:0}
+.cooked{font:inherit;font-size:12px;color:var(--soft);background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:3px 10px;cursor:pointer;white-space:nowrap}
+.cooked[aria-pressed="true"]{background:var(--mint-bg);border-color:var(--mint);color:var(--ink);font-weight:700}
+.cooked:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.day.done{opacity:.75}
+/* 好久沒做 */
+.longago{display:flex;flex-wrap:wrap;gap:6px}
+.longago button{font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:2px dashed var(--line);border-radius:999px;padding:4px 12px;cursor:pointer}
+.longago button:hover,.longago button:focus-visible{border-color:var(--cta);outline:none}
+.longago small{color:var(--soft);margin-left:4px}
+/* 購物模式 */
+.shopmode{position:fixed;inset:0;z-index:35;background:var(--paper);overflow:auto;
+  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sm-head{position:sticky;top:0;z-index:1;background:var(--paper);display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:14px 10px;border-bottom:2px dotted var(--line)}
+.sm-head h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:26px}
+.sm-head p{margin:0;color:var(--soft);font-size:14px}
+.sm-body{max-width:640px;margin:0 auto;padding-top:8px}
+.sm-body h4{margin:18px 0 6px;font-size:14px;color:var(--soft);font-weight:500;letter-spacing:.05em}
+.sm-item{display:flex;align-items:center;gap:14px;min-height:56px;padding:6px 4px;border-bottom:1.5px dashed var(--line);cursor:pointer;font-size:20px}
+.sm-item input{width:26px;height:26px;accent-color:var(--pink);flex:0 0 auto;margin:0}
+.sm-item small{margin-left:auto;font-size:13px;color:var(--soft);text-align:right}
+.sm-item.done span{text-decoration:line-through;color:var(--soft)}
+.sm-item .qty{font-size:16px}
+.shop-fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;font:inherit;font-weight:700;color:#fff;background:var(--cta);border:0;border-radius:999px;padding:12px 20px;box-shadow:0 4px 0 var(--cta-deep),0 10px 20px -8px var(--cta);cursor:pointer}
+@media (min-width:881px){.shop-fab{display:none}}
 </style>
 </head>
 <body>
@@ -244,6 +302,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
 
 <section class="menu wrap" id="menuView" hidden aria-label="本週菜單">
   <div style="min-width:0">
+    <div id="incoming"></div>
     <div class="panel">
       <h2 class="ph">排這週的菜單</h2>
       <div class="field"><span class="lbl">要煮哪幾天</span><div class="seg" id="daysSel"></div></div>
@@ -253,6 +312,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
         <div class="have" id="haveSel"></div>
         <div><button class="btn small" id="haveClear" hidden>清除已選食材</button></div>
       </details>
+      <div class="field" id="longAgoBox" hidden><span class="lbl">好久沒做的菜 <span class="hint">點一下加進這週</span></span><div class="longago" id="longAgo"></div></div>
       <div class="plan-actions">
         <p class="hint" style="flex:1 1 100%;margin:0">改天數或道數，下面的菜單會自動更新。想整週換一批，按這顆（鎖住的菜不會換）。</p>
         <button class="btn primary" id="planBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>幫我排菜單</button>
@@ -264,6 +324,16 @@ details.field[open] summary::before{transform:rotate(90deg)}
   <aside class="panel shop" id="shopOut" aria-label="購物清單"></aside>
 </section>
 <footer class="wrap">Sophia 的廚房 · 照片拍攝於 2023–2026</footer>
+
+<div class="dlg" id="dlg" hidden role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+  <div class="dlg-box">
+    <div class="dlg-head"><h3 id="dlgTitle"></h3><button class="close" id="dlgClose" aria-label="關閉">×</button></div>
+    <div class="dlg-body" id="dlgBody"></div>
+  </div>
+</div>
+<div class="shopmode" id="shopMode" hidden role="dialog" aria-modal="true" aria-label="購物模式"></div>
+<button class="shop-fab" id="shopFab" hidden>購物清單</button>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="照片">
   <div class="lb-box">
@@ -277,6 +347,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const DATES={"0321":"2023/11/24","0328":"2025/05/24","0399":"2026/05/17","0467":"2025/05/30","0478":"2025/05/31","0536":"2026/01/24","0633":"2025/06/07","0913":"2023/12/31","0916":"2023/12/31","0927":"2024/01/03","0934":"2024/01/04","0950":"2024/01/05","1099":"2026/01/31","1103":"2026/01/31","1256":"2026/05/30","1282":"2026/05/30","1292":"2026/05/31","1317":"2026/02/08","1324":"2024/01/22","1347":"2024/01/27","1358":"2024/01/28","1419":"2025/06/21","1467":"2026/06/06","1470":"2026/02/14","1478":"2026/06/06","1641":"2026/06/14","1702":"2026/06/18","1912":"2024/02/16","2122":"2024/02/22","2161":"2026/06/20","2273":"2026/06/27","2279":"2024/03/02","2281":"2026/06/28","2290":"2024/03/03","2300":"2024/03/06","2380":"2024/03/18","2391":"2024/03/20","2398":"2024/03/21","2399":"2024/03/18","2400":"2024/03/21","2401":"2024/03/21","2402":"2024/03/13","2425":"2024/03/22","2522":"2026/07/05","2716":"2024/04/09","2727":"2024/04/11","2731":"2024/04/13","2764":"2025/08/03","2774":"2024/04/17","2792":"2024/04/18","2803":"2024/04/20","2811":"2024/04/22","2918":"2024/05/16","2966":"2024/05/25","2998":"2024/05/30","3019":"2025/08/16","3020":"2025/08/16","3025":"2024/06/04","3068":"2024/06/11","3180":"2024/06/20","3198":"2024/06/23","3212":"2026/07/27","3215":"2024/06/27","3246":"2025/08/23","3249":"2024/06/30","3571":"2026/03/08","3640":"2025/09/08","3765":"2026/03/15","3809":"2025/09/14","3810":"2024/08/04","3826":"2024/08/08","3948":"2024/08/23","4015":"2025/09/20","4016":"2025/09/20","4032":"2024/08/26","4216":"2025/09/28","4615":"2025/10/08","4751":"2025/10/11","4843":"2026/09/19","4888":"2025/10/18","4899":"2025/10/18","4990":"2025/10/24","4995":"2025/10/25","5381":"2025/11/08","5393":"2025/11/08","5414":"2025/11/10","5418":"2025/11/10","5473":"2025/11/13","5519":"2025/11/15","5617":"2024/11/23","5797":"2026/04/04","5903":"2024/12/07","5907":"2024/12/07","5974":"2026/04/05","6410":"2026/04/07","6522":"2025/11/25","6750":"2025/11/29","6751":"2025/11/29","6832":"2025/01/11","7112":"2025/01/25","7308":"2026/10/18","7386":"2025/02/08","7393":"2025/12/06","7397":"2025/12/06","7416":"2025/12/07","7539":"2025/02/15","7543":"2025/02/15","7581":"2025/08/17","7993":"2025/03/01","7994":"2025/03/01","8411":"2025/03/16","8558":"2025/03/23","8560":"2025/03/23","8745":"2025/03/30","8851":"2025/12/21","8905":"2025/04/06","9042":"2026/04/18","9386":"2025/04/26","9387":"2025/04/26","9574":"2026/01/01","9600":"2026/01/02","9606":"2026/01/02","9618":"2026/01/03","9633":"2026/01/04","9693":"2025/05/03","9864":"2026/05/09","9880":"2026/01/11","9948":"2025/05/10"};
 
@@ -473,7 +544,9 @@ function render(q=""){
       <div class="cat-head"><h2>${cat.name}</h2><span class="n">${list.length} 道</span></div><div class="grid">`+
       list.map(d=>{
         const ds=sorted(d.p),idx=DISHES.indexOf(d);
+        const last=lastMade(d);
         return `<article class="card">
+          <button class="add-fab" data-add="${idx}" aria-label="把 ${d.n} 加入本週菜單" title="加入本週菜單">+</button>
           <button class="photo" data-i="${idx}" aria-label="看 ${d.n} 的照片">
             <img src="${cover(d)}" alt="${d.n}" loading="lazy">
             ${d.p.length>1?`<span class="count">${d.p.length} 張</span>`:""}
@@ -481,7 +554,7 @@ function render(q=""){
           <div class="tags"><span class="tag">${tagOf(d)}</span><span class="tag kc">約 ${KCAL[d.n]||200} kcal</span></div>
           <h3>${d.n}</h3><p>${d.d}</p>
           <div class="ing">${d.i.map(x=>`<span>${x}</span>`).join("")}</div>
-          <div class="meta"><span>第一次 <b>${ds[0]}</b></span><span>做過 <b>${d.p.length}</b> 次</span></div>
+          <div class="meta"><span title="第一次 ${ds[0]}">最近 <b>${last}</b></span><span>做過 <b>${timesMade(d)}</b> 次</span></div>
         </article>`}).join("")+`</div></section>`;
   }
   $("#main").innerHTML=any?html:`<div class="empty">找不到「${q.replace(/[<>&"]/g,"")}」，換個關鍵字試試看</div>`;
@@ -517,7 +590,10 @@ function open(d){
 function close(){$("#lb").hidden=true;lastFocus&&lastFocus.focus()}
 const step=n=>{pos=(pos+n+cur.p.length)%cur.p.length;show()};
 
-$("#main").addEventListener("click",e=>{const b=e.target.closest(".photo");if(b)open(DISHES[+b.dataset.i])});
+$("#main").addEventListener("click",e=>{
+  const a=e.target.closest(".add-fab");if(a){addToPlan(DISHES[+a.dataset.add]);return}
+  const b=e.target.closest(".photo");if(b)open(DISHES[+b.dataset.i]);
+});
 // start fetching the big photo as soon as a card is pointed at, pressed or focused
 for(const ev of ["pointerover","pointerdown","focusin"])
   $("#main").addEventListener(ev,e=>{const b=e.target.closest(".photo");if(b)preload(DISHES[+b.dataset.i].p[0])},{passive:true});
@@ -626,10 +702,11 @@ function costOf(need){
 const proteinsOf=d=>PROTEINS.filter(p=>d.i.some(x=>p.re.test(x))).map(p=>p.k);
 const ICON={
   swap:'<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg>',
+  list:'<svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>',
   lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
 };
 
-let M={days:[0,1,2,3,4],meal:"2+1",have:[],plan:null,checked:[],prices:{}};
+let M={days:[0,1,2,3,4],meal:"2+1",have:[],plan:null,checked:[],prices:{},cooked:{}};
 try{const s=JSON.parse(localStorage.getItem("kitchen-menu-v1")||"null");if(s&&Array.isArray(s.days))M={...M,...s}}catch(e){}
 const saveM=()=>{try{localStorage.setItem("kitchen-menu-v1",JSON.stringify(M))}catch(e){}};
 const haveSet=()=>new Set(M.have);
@@ -654,6 +731,8 @@ function weight(d,slot,have,ctx){
   const m=d.i.filter(x=>have.has(x)).length;
   if(have.size)w*=m?1+3*m:0.3;                       // 用得到冰箱食材的優先
   if(slot==="main"&&d.c==="main")w*=0.5;             // 飯麵類偶爾當主菜
+  const since=daysSince(lastMade(d));
+  if(since<7)w*=0.15; else if(since>120)w*=1.6;      // 這週剛煮過的少排，好久沒做的多排
   // 省錢：要另外買的食材越貴越少選；跟這週其他菜共用食材的加分
   const extra=d.i.filter(x=>!STAPLES.has(x)&&!have.has(x)&&!ctx.ingr.has(x)).reduce((a,x)=>a+priceOf(x)/usesOf(x),0);
   w*=1/(1+extra/300);
@@ -681,6 +760,7 @@ function makePlan(){
   // 先保留鎖住的菜
   for(const day of M.days){
     const prev=old[day]||[];
+    if(M.cooked&&M.cooked[day]&&prev.length){plan[day]=prev.map(r=>({...r}));prev.forEach(r=>used.add(r.n));continue}
     plan[day]=slots.map(slot=>{
       const keep=prev.find(x=>x.lock&&x.slot===slot&&!x._taken&&byName.has(x.n));
       if(keep){keep._taken=true;used.add(keep.n);return {slot,n:keep.n,lock:true}}
@@ -747,7 +827,8 @@ function renderPlan(){
   }
   const have=haveSet();
   const days=Object.keys(M.plan).map(Number).sort((a,b)=>a-b);
-  $("#planOut").innerHTML=`<div class="days">`+days.map(day=>`<article class="day"><h3>${WEEK[day]}</h3><ul>`+
+  $("#planOut").innerHTML=`<div class="days">`+days.map(day=>`<article class="day${M.cooked&&M.cooked[day]?" done":""}"><div class="day-head"><h3>${WEEK[day]}</h3>
+      <button class="cooked" data-cooked="${day}" aria-pressed="${!!(M.cooked&&M.cooked[day])}">${M.cooked&&M.cooked[day]?"已煮好":"今天煮了"}</button></div><ul>`+
     M.plan[day].map((r,i)=>{
       const d=byName.get(r.n); if(!d)return "";
       const hits=d.i.filter(x=>have.has(x));
@@ -756,6 +837,7 @@ function renderPlan(){
         <div class="dn"><span class="slot">${SLOT[r.slot].name} · 約 ${KCAL[d.n]||200} kcal</span><b>${d.n}</b>
           <small>${hits.length?`用掉 ${hits.map(x=>`<em>${x}</em>`).join(" ")}`:d.i.filter(x=>!STAPLES.has(x)).join("、")}</small></div>
         <div class="ops">
+          <button data-pick="${day},${i}" aria-label="自己選一道" title="自己選一道">${ICON.list}</button>
           <button data-swap="${day},${i}" aria-label="換一道" title="換一道">${ICON.swap}</button>
           <button data-lock="${day},${i}" aria-pressed="${r.lock}" aria-label="鎖住這道菜" title="鎖住，重排時不換">${ICON.lock}</button>
         </div></li>`}).join("")+`</ul></article>`).join("")+`</div>`;
@@ -834,7 +916,7 @@ function renderShop(){
     }).join("")+
     (haveUsed.size?`<div class="grp"><h4>冰箱已有，不用買</h4><div class="chiplist">${[...haveUsed].map(x=>`<span>${x}</span>`).join("")}</div></div>`:"")+
     (staples.size?`<div class="grp"><h4>確認家裡還有</h4><div class="chiplist">${[...staples].map(x=>`<span>${x}</span>`).join("")}</div></div>`:"")+
-    `<div class="actions"><button class="btn" id="copyBtn">複製菜單和購物清單</button><span class="copymsg" id="copyMsg" role="status"></span></div><div id="copyFallback"></div>`;
+    `<div class="actions"><button class="btn" id="shopModeBtn">購物模式</button><button class="btn" id="shareBtn">傳到手機</button><button class="btn" id="copyBtn">複製菜單和購物清單</button><span class="copymsg" id="copyMsg" role="status"></span></div><div id="copyFallback"></div>`;
   renderSummary();
 }
 function planText(){
@@ -861,6 +943,13 @@ $("#menuView").addEventListener("click",e=>{
   }
   else if(b.id==="haveClear"){M.have=[];saveM();renderSettings();if(M.plan)renderPlan()}
   else if(b.id==="planBtn"){makePlan()}
+  else if(b.dataset.pick){const [d,i]=b.dataset.pick.split(",").map(Number);pickFor(d,i)}
+  else if(b.dataset.cooked!==undefined){toggleCooked(+b.dataset.cooked)}
+  else if(b.dataset.addname){addToPlan(byName.get(b.dataset.addname))}
+  else if(b.id==="shopModeBtn"){openShopMode()}
+  else if(b.id==="shareBtn"){openShare()}
+  else if(b.id==="useIncoming"){useIncoming()}
+  else if(b.id==="dropIncoming"){incoming=null;$("#incoming").innerHTML="";try{history.replaceState(null,"","#menu")}catch(e){}}
   else if(b.dataset.swap){const [d,i]=b.dataset.swap.split(",").map(Number);swapDish(d,i)}
   else if(b.dataset.lock){const [d,i]=b.dataset.lock.split(",").map(Number);M.plan[d][i].lock=!M.plan[d][i].lock;saveM();renderPlan()}
   else if(b.dataset.open){open(byName.get(b.dataset.open))}
@@ -888,15 +977,179 @@ $("#menuView").addEventListener("change",e=>{
 function showView(v){
   const menu=v==="menu";
   $("#tabList").setAttribute("aria-selected",!menu);$("#tabMenu").setAttribute("aria-selected",menu);
-  $("nav.bar").hidden=menu;$("#main").hidden=menu;$("#menuView").hidden=!menu;
+  $("nav.bar").hidden=menu;$("#main").hidden=menu;$("#menuView").hidden=!menu;$("#shopFab").hidden=!menu;
   try{history.replaceState(null,"",menu?"#menu":location.pathname+location.search)}catch(e){}
 }
 $("#tabList").onclick=()=>showView("list");
 $("#tabMenu").onclick=()=>showView("menu");
+// ---------- 煮過的紀錄 ----------
+let LOG=[];
+try{LOG=JSON.parse(localStorage.getItem("kitchen-log-v1")||"[]")||[]}catch(e){LOG=[]}
+const saveLog=()=>{try{localStorage.setItem("kitchen-log-v1",JSON.stringify(LOG))}catch(e){}};
+const pad2=n=>String(n).padStart(2,"0");
+const todayStr=()=>{const t=new Date();return `${t.getFullYear()}/${pad2(t.getMonth()+1)}/${pad2(t.getDate())}`};
+function lastMade(d){
+  const ds=d.p.map(dateOf).concat(LOG.filter(e=>e.n.includes(d.n)).map(e=>e.d)).filter(Boolean).sort();
+  return ds.at(-1)||"";
+}
+const timesMade=d=>d.p.length+LOG.filter(e=>e.n.includes(d.n)).length;
+function daysSince(s){if(!s)return 9999;const [y,m,dd]=s.split("/").map(Number);return Math.floor((Date.now()-new Date(y,m-1,dd))/864e5)}
+function ago(s){const n=daysSince(s);if(n<31)return n+" 天前";if(n<365)return Math.floor(n/30)+" 個月前";return (n/365).toFixed(1).replace(".0","")+" 年前"}
+function toggleCooked(day){
+  M.cooked=M.cooked||{};
+  const names=(M.plan[day]||[]).map(r=>r.n).filter(n=>byName.has(n));
+  if(M.cooked[day]){
+    const was=M.cooked[day];LOG=LOG.filter(e=>!(e.d===was&&e.day===day&&e.week===M.week));
+    delete M.cooked[day];toast(`已取消${WEEK[day]}的紀錄`);
+  }else{
+    M.week=M.week||Date.now();
+    const d=todayStr();M.cooked[day]=d;LOG.push({d,day,week:M.week,n:names});
+    toast(`記下來了：${d} 煮了 ${names.join("、")}`);
+  }
+  saveLog();saveM();renderPlan();renderLongAgo();render($("#q").value);
+}
+function renderLongAgo(){
+  const used=new Set(Object.values(M.plan||{}).flat().map(r=>r.n));
+  const xs=DISHES.filter(d=>timesMade(d)>=2&&!used.has(d.n)).map(d=>({d,last:lastMade(d)}))
+    .filter(x=>daysSince(x.last)>90).sort((a,b)=>a.last.localeCompare(b.last)).slice(0,6);
+  $("#longAgoBox").hidden=!xs.length;
+  $("#longAgo").innerHTML=xs.map(x=>`<button data-addname="${x.d.n}">+ ${x.d.n}<small>${ago(x.last)}</small></button>`).join("");
+}
+
+// ---------- 對話框與提示 ----------
+let dlgReturn=null;
+function openDlg(title,html){dlgReturn=document.activeElement;$("#dlgTitle").textContent=title;$("#dlgBody").innerHTML=html;$("#dlg").hidden=false;$("#dlgClose").focus()}
+function closeDlg(){$("#dlg").hidden=true;$("#dlgBody").innerHTML="";dlgReturn&&dlgReturn.focus&&dlgReturn.focus()}
+$("#dlgClose").onclick=closeDlg;
+$("#dlg").addEventListener("click",e=>{if(e.target.id==="dlg")closeDlg()});
+let toastT=null;
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3200)}
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(!$("#dlg").hidden)closeDlg();else if(!$("#shopMode").hidden)closeShopMode()});
+
+// ---------- 自己挑菜 ----------
+const fitsSlot=(d,slot)=>SLOT[slot].ok?SLOT[slot].ok(d):SLOT[slot].cats.includes(d.c);
+function slotFor(d){
+  if(M.meal==="pot"&&fitsSlot(d,"pot"))return "pot";
+  return {meat:"main",sea:"main",main:"main",egg:"side",veg:"veg",soup:"soup"}[d.c]||"side";
+}
+function addToPlan(d){
+  if(!d)return;
+  if(!M.plan||!planDays().length){toast("先到「本週菜單」選要煮哪幾天");return}
+  openDlg(`把「${d.n}」加到哪一天？`,`<div class="daypick">`+planDays().map(day=>
+    `<button data-day-add="${day}"><b>${WEEK[day]}</b><small>${M.plan[day].map(r=>r.n).join("、")}</small></button>`).join("")+`</div>`);
+  $("#dlgBody").onclick=e=>{
+    const b=e.target.closest("[data-day-add]");if(!b)return;
+    const day=+b.dataset.dayAdd,rows=M.plan[day];
+    let i=rows.findIndex(r=>!r.lock&&fitsSlot(d,r.slot));
+    if(i<0)i=rows.findIndex(r=>fitsSlot(d,r.slot)&&!(M.cooked&&M.cooked[day]));
+    let msg;
+    if(i>=0){msg=`已加到${WEEK[day]}，換掉了${rows[i].n}`;rows[i]={slot:rows[i].slot,n:d.n,lock:true}}
+    else{rows.push({slot:slotFor(d),n:d.n,lock:true});msg=`已加到${WEEK[day]}（多一道菜）`}
+    saveM();renderPlan();renderLongAgo();closeDlg();toast(msg);
+  };
+}
+function pickFor(day,i){
+  const row=M.plan[day][i];
+  const list=DISHES.filter(d=>fitsSlot(d,row.slot)).sort((a,b)=>timesMade(b)-timesMade(a));
+  openDlg(`${WEEK[day]}的${SLOT[row.slot].name}要煮什麼？`,
+    `<input class="picksearch" id="pickQ" type="search" placeholder="搜尋菜名或食材" aria-label="搜尋菜名或食材"><div class="picklist" id="pickList"></div>`);
+  const draw=q=>{$("#pickList").innerHTML=list.filter(d=>!q||d.n.includes(q)||d.i.some(x=>x.includes(q))).map(d=>
+    `<button data-pick-n="${d.n}"><img src="${cover(d)}" alt="" loading="lazy"><span>${d.n}</span><small>最近 ${lastMade(d)} · 約 ${KCAL[d.n]||200} kcal</small></button>`).join("")||`<p class="hint">找不到符合的菜</p>`};
+  draw("");
+  $("#pickQ").addEventListener("input",e=>draw(e.target.value.trim()));
+  $("#dlgBody").onclick=e=>{
+    const b=e.target.closest("[data-pick-n]");if(!b)return;
+    M.plan[day][i]={slot:row.slot,n:b.dataset.pickN,lock:true};
+    saveM();renderPlan();renderLongAgo();closeDlg();toast(`${WEEK[day]}改成${b.dataset.pickN}，已鎖住`);
+  };
+}
+
+// ---------- 傳到手機 ----------
+const SHARE_BASE="https://kang0921.github.io/sophia-kitchen/";
+const SLOT_CODE={main:"m",side:"s",veg:"v",soup:"u",pot:"p"},CODE_SLOT=Object.fromEntries(Object.entries(SLOT_CODE).map(([a,b])=>[b,a]));
+const idxOf=new Map(DISHES.map((d,i)=>[d.n,i]));
+function encodePlan(){
+  const o={m:M.meal,d:planDays().map(day=>[day,M.plan[day].map(r=>[SLOT_CODE[r.slot],idxOf.get(r.n),r.lock?1:0])]),h:M.have,c:M.checked,pr:M.prices};
+  const bytes=new TextEncoder().encode(JSON.stringify(o));let bin="";bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function decodePlan(str){
+  try{
+    const bin=atob(str.replace(/-/g,"+").replace(/_/g,"/"));const o=JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))));
+    if(!o||!Array.isArray(o.d)||!mealOf(o.m))return null;
+    const plan={};
+    for(const [day,rows] of o.d){
+      if(!(day>=0&&day<7))return null;
+      plan[day]=rows.map(([c,i,l])=>({slot:CODE_SLOT[c],n:DISHES[i]&&DISHES[i].n,lock:!!l})).filter(r=>r.slot&&r.n);
+    }
+    return {meal:o.m,plan,days:Object.keys(plan).map(Number).sort((a,b)=>a-b),have:Array.isArray(o.h)?o.h:[],checked:Array.isArray(o.c)?o.c:[],prices:o.pr&&typeof o.pr==="object"?o.pr:{}};
+  }catch(e){return null}
+}
+function openShare(){
+  const url=SHARE_BASE+"#p="+encodePlan();
+  openDlg("傳到手機",`<p class="hint" style="margin:0">用手機相機掃描，或把連結傳給自己。打開後會問你要不要使用這份菜單和購物清單。</p>
+    <div class="qr" id="qrBox"></div>
+    <input class="sharelink" id="shareLink" readonly aria-label="分享連結">
+    <div class="actions"><button class="btn primary" id="copyLink" style="font-size:16px;padding:8px 20px">複製連結</button><span class="copymsg" id="linkMsg" role="status"></span></div>`);
+  $("#shareLink").value=url;
+  try{new QRCode($("#qrBox"),{text:url,width:200,height:200,correctLevel:QRCode.CorrectLevel.L})}
+  catch(e){$("#qrBox").outerHTML=`<p class="hint">QR code 無法顯示，請改用下面的連結。</p>`}
+  $("#copyLink").onclick=()=>{
+    const done=()=>$("#linkMsg").textContent="已複製";
+    const fb=()=>{$("#shareLink").select();$("#linkMsg").textContent="已選取，請長按或按 Ctrl+C 複製"};
+    try{navigator.clipboard.writeText(url).then(done,fb)}catch(e){fb()}
+  };
+}
+let incoming=null;
+function showIncoming(){
+  if(!incoming)return;
+  const n=Object.values(incoming.plan).flat().length;
+  $("#incoming").innerHTML=`<div class="incoming"><p>收到一份分享的菜單：${incoming.days.map(d=>WEEK[d].slice(2)).join("、")}，共 ${n} 道菜。要用這份取代目前的菜單和購物清單嗎？</p>
+    <button class="btn primary" id="useIncoming" style="font-size:16px;padding:8px 20px">使用這份</button><button class="btn" id="dropIncoming">不要</button></div>`;
+}
+function useIncoming(){
+  Object.assign(M,{meal:incoming.meal,days:incoming.days,plan:incoming.plan,have:incoming.have,checked:incoming.checked,prices:{...M.prices,...incoming.prices},cooked:{}});
+  incoming=null;$("#incoming").innerHTML="";saveM();renderSettings();renderPlan();renderLongAgo();
+  try{history.replaceState(null,"","#menu")}catch(e){}
+  toast("已換成分享的菜單");
+}
+
+// ---------- 購物模式 ----------
+let wakeLock=null;
+function openShopMode(){
+  if(!M.plan){toast("先排好菜單");return}
+  drawShopMode();$("#shopMode").hidden=false;document.body.style.overflow="hidden";$("#smClose").focus();
+  try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(l=>wakeLock=l).catch(()=>{})}catch(e){}
+}
+function closeShopMode(){$("#shopMode").hidden=true;document.body.style.overflow="";try{wakeLock&&wakeLock.release()}catch(e){}wakeLock=null;renderShop()}
+function drawShopMode(){
+  const {need,haveUsed,staples}=shopData(),cost=costOf(need),checked=new Set(M.checked);
+  const done=[...need.keys()].filter(x=>checked.has(x)).length;
+  $("#shopMode").innerHTML=`<div class="sm-head"><div><h2>購物清單</h2><p id="smCount">已買 ${done} / ${need.size} 樣 · 約 ${money(cost.pay)}</p></div>
+    <button class="btn" id="smClose">關閉</button></div><div class="sm-body">`+
+    GROUPS.map(g=>{const xs=[...need].filter(([x])=>groupOf(x)===g.k);
+      return xs.length?`<h4>${g.name}</h4>`+xs.map(([x,ds])=>`<label class="sm-item${checked.has(x)?" done":""}"><input type="checkbox" data-smbuy="${x}"${checked.has(x)?" checked":""}><span>${x}${cost.packs.get(x)>1?` <b class="qty">×${cost.packs.get(x)}</b>`:""}</span><small>${ds.length>1?ds.length+" 道菜":ds[0]}</small></label>`).join(""):""}).join("")+
+    (haveUsed.size?`<h4>冰箱已有，不用買</h4><div class="chiplist">${[...haveUsed].map(x=>`<span>${x}</span>`).join("")}</div>`:"")+
+    (staples.size?`<h4>確認家裡還有</h4><div class="chiplist">${[...staples].map(x=>`<span>${x}</span>`).join("")}</div>`:"")+`</div>`;
+  $("#smClose").onclick=closeShopMode;
+}
+$("#shopMode").addEventListener("change",e=>{
+  const x=e.target.dataset&&e.target.dataset.smbuy;if(!x)return;
+  M.checked=e.target.checked?[...new Set([...M.checked,x])]:M.checked.filter(y=>y!==x);saveM();
+  e.target.closest(".sm-item").classList.toggle("done",e.target.checked);
+  const {need}=shopData(),c=new Set(M.checked);
+  $("#smCount").textContent=`已買 ${[...need.keys()].filter(y=>c.has(y)).length} / ${need.size} 樣 · 約 ${money(costOf(need).pay)}`;
+});
+$("#shopFab").onclick=openShopMode;
+
 stats();render();
 renderSettings();
 if(!M.plan)makePlan();else{syncDays();saveM();renderPlan()}
-if(location.hash==="#menu")showView("menu");
+// 「已煮好」只保留一週，下週重新排時就不會卡住
+if(M.cooked){for(const [d,t] of Object.entries(M.cooked))if(daysSince(t)>=7)delete M.cooked[d];saveM();renderPlan()}
+renderLongAgo();
+if(location.hash.startsWith("#p=")){incoming=decodePlan(location.hash.slice(3));showView("menu");if(incoming)showIncoming();else toast("這個分享連結看不懂，可能被截斷了")}
+else if(location.hash==="#menu")showView("menu");
 </script>
 
 </body>
