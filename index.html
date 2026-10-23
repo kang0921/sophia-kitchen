@@ -93,7 +93,8 @@ section.cat{scroll-margin-top:120px;padding-top:26px}
   padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .lb-box{background:var(--card);border-radius:14px;padding:12px;max-width:min(980px,100%);max-height:100%;display:flex;flex-direction:column;gap:10px;min-width:0}
 .lb-img{position:relative;min-height:0;flex:1;display:flex;align-items:center;justify-content:center}
-.lb-img img{height:min(68vh,75vw);width:auto;max-width:100%;object-fit:contain;border-radius:8px;display:block}
+.lb-img img{height:min(68vh,75vw);width:auto;max-width:100%;object-fit:contain;border-radius:8px;display:block;transition:filter .25s}
+.lb-img img.soft{filter:blur(6px)}
 .lb-cap{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .lb-cap h4{margin:0;font-family:var(--f-display);font-weight:400;font-size:20px}
 .lb-cap span{color:var(--soft);font-size:13px;font-variant-numeric:tabular-nums}
@@ -282,7 +283,7 @@ const DISHES=[
 ];
 
 const $=s=>document.querySelector(s);
-const full=id=>`img/IMG_${id}.webp`,thumb=id=>`thumb/IMG_${id}.webp`;
+const full=id=>`img/IMG_${id}.webp`,thumb=id=>`thumb/IMG_${id}.webp`,mini=id=>`mini/IMG_${id}.webp`;
 const dateOf=id=>DATES[id]||"";
 const sorted=ids=>[...ids].map(dateOf).filter(Boolean).sort();
 
@@ -332,11 +333,16 @@ const loaded=new Set();
 function preload(id){if(loaded.has(id))return;loaded.add(id);new Image().src=full(id)}
 function show(){
   const id=cur.p[pos],img=$("#lbImg");
-  // the small photo is already cached, so show it at once and swap in the sharp one when it arrives
-  img.src=thumb(id);img.alt=cur.n;
+  // show an already-cached preview at once (the card photo for the cover, the strip's tiny one otherwise),
+  // then swap in the sharp photo when it arrives
+  img.alt=cur.n;
   const hi=new Image();
-  hi.onload=()=>{if(cur&&cur.p[pos]===id)img.src=hi.src};
   hi.src=full(id);loaded.add(id);
+  if(hi.complete&&hi.naturalWidth){img.src=hi.src;img.classList.remove("soft")}
+  else{
+    img.src=pos===0?thumb(id):mini(id);img.classList.add("soft");
+    hi.onload=()=>{if(cur&&cur.p[pos]===id){img.src=hi.src;img.classList.remove("soft")}};
+  }
   if(cur.p.length>1){preload(cur.p[(pos+1)%cur.p.length]);preload(cur.p[(pos-1+cur.p.length)%cur.p.length])}
   $("#lbTitle").textContent=cur.n;
   $("#lbDate").textContent=`${dateOf(id)}　${pos+1} / ${cur.p.length}`;
@@ -345,7 +351,7 @@ function show(){
 }
 function open(d){
   cur=d;pos=0;lastFocus=document.activeElement;
-  $("#lbThumbs").innerHTML=d.p.length>1?d.p.map((id,i)=>`<button data-k="${i}" aria-label="第 ${i+1} 張"><img src="${thumb(id)}" alt=""></button>`).join(""):"";
+  $("#lbThumbs").innerHTML=d.p.length>1?d.p.map((id,i)=>`<button data-k="${i}" aria-label="第 ${i+1} 張"><img src="${mini(id)}" alt="" width="64" height="48"></button>`).join(""):"";
   $("#lb").hidden=false;show();$("#lbClose").focus();
 }
 function close(){$("#lb").hidden=true;lastFocus&&lastFocus.focus()}
