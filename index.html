@@ -19,7 +19,7 @@
   --sky:#9cc6ee; --sky-bg:#e5f0fb;
   --lilac:#c3aee8; --lilac-bg:#efe8fb;
   --peach:#f6b48f; --peach-bg:#fdeadf;
-  --tape:rgba(246,166,184,.55);
+  --tape:rgba(246,166,184,.55); --cta:#d9577a; --cta-deep:#a83a58;
   --shadow:0 2px 0 rgba(74,58,64,.06),0 8px 22px -12px rgba(74,58,64,.25);
   --f-display:"Huninn","jf-openhuninn","Noto Sans TC","PingFang TC",sans-serif;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
@@ -27,11 +27,11 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:#241d21; --grid:#2f262b; --ink:#f5e9ec; --soft:#bba7ad; --card:#30272c; --line:#43373d;
   --pink-bg:#4a2c35; --mint-bg:#20403a; --butter-bg:#463a1e; --sky-bg:#233649; --lilac-bg:#352c4a; --peach-bg:#4a3125;
-  --tape:rgba(246,166,184,.35); --shadow:0 8px 22px -12px rgba(0,0,0,.6); color-scheme:dark}}
+  --tape:rgba(246,166,184,.35); --cta:#d9577a; --cta-deep:#8f3049; --shadow:0 8px 22px -12px rgba(0,0,0,.6); color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#241d21; --grid:#2f262b; --ink:#f5e9ec; --soft:#bba7ad; --card:#30272c; --line:#43373d;
   --pink-bg:#4a2c35; --mint-bg:#20403a; --butter-bg:#463a1e; --sky-bg:#233649; --lilac-bg:#352c4a; --peach-bg:#4a3125;
-  --tape:rgba(246,166,184,.35); --shadow:0 8px 22px -12px rgba(0,0,0,.6); color-scheme:dark}
+  --tape:rgba(246,166,184,.35); --cta:#d9577a; --cta-deep:#8f3049; --shadow:0 8px 22px -12px rgba(0,0,0,.6); color-scheme:dark}
 
 *{box-sizing:border-box}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -140,7 +140,14 @@ details.field[open] summary::before{transform:rotate(90deg)}
 .have button{font-size:13px;padding:3px 10px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .btn{font:inherit;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:8px 18px;cursor:pointer}
-.btn.primary{background:var(--pink);border-color:var(--pink);color:#3b2a30;font-weight:700}
+.btn.primary{background:var(--cta);border-color:var(--cta);color:#fff;font-family:var(--f-display);font-size:20px;padding:12px 30px;display:inline-flex;align-items:center;gap:10px;
+  box-shadow:0 4px 0 var(--cta-deep),0 10px 20px -8px var(--cta);transition:transform .15s,box-shadow .15s}
+.btn.primary svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn.primary:hover{border-color:var(--cta);transform:translateY(-2px);box-shadow:0 6px 0 var(--cta-deep),0 14px 24px -8px var(--cta)}
+.btn.primary:active{transform:translateY(3px);box-shadow:0 1px 0 var(--cta-deep)}
+.plan-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:6px;padding-top:16px;border-top:2px dashed var(--line)}
+@media (max-width:520px){.btn.primary{flex:1 1 100%;justify-content:center}}
+@media (prefers-reduced-motion:reduce){.btn.primary{transition:none}.btn.primary:hover,.btn.primary:active{transform:none}}
 .btn:hover{border-color:var(--pink)}
 .days{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px 16px;margin-top:22px}
 .day{background:var(--card);border-radius:10px;padding:14px;box-shadow:var(--shadow);min-width:0;position:relative}
@@ -210,8 +217,8 @@ details.field[open] summary::before{transform:rotate(90deg)}
         <summary><span class="lbl">冰箱裡有的食材</span><span class="hint" id="haveCount">選填，會優先用掉</span></summary>
         <div class="have" id="haveSel"></div>
       </details>
-      <div class="actions">
-        <button class="btn primary" id="planBtn">幫我排菜單</button>
+      <div class="plan-actions">
+        <button class="btn primary" id="planBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>幫我排菜單</button>
         <button class="btn" id="haveClear">清除已選食材</button>
       </div>
     </div>
