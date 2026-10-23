@@ -500,9 +500,13 @@ const MEALS=[
   {k:"1+1",name:"一菜一湯",slots:["main","soup"]},
   {k:"2",name:"兩菜",slots:["main","side"]},
   {k:"2+1",name:"兩菜一湯",slots:["main","side","soup"]},
-  {k:"3+1",name:"三菜一湯",slots:["main","side","veg","soup"]}
+  {k:"3+1",name:"三菜一湯",slots:["main","side","veg","soup"]},
+  {k:"pot",name:"一鍋到底",slots:["pot"]}
 ];
-const SLOT={main:{name:"主菜",cats:["meat","sea","main"]},side:{name:"配菜",cats:["egg","veg"]},veg:{name:"青菜",cats:["veg"]},soup:{name:"湯",cats:["soup"]}};
+// 一道就有肉有菜、配飯或本身就是飯麵的料理
+const ONE_POT=new Set(["味噌豆乳番茄鍋","壽喜燒","韓式泡菜鍋","什錦豆腐鍋","番茄白菜豆腐鍋","蛤蜊蛋花鍋","鮮蝦白菜豆腐鍋","鮮蝦雞肉湯鍋",
+  "雞肉蔬菜鍋","高麗菜荷包蛋鍋","番茄牛肉湯","番茄高麗菜排骨湯","玉米高麗菜雞湯","番茄紅蘿蔔燉牛肉","馬鈴薯燉肉"]);
+const SLOT={pot:{name:"一鍋到底",ok:d=>d.c==="main"||ONE_POT.has(d.n)},main:{name:"主菜",cats:["meat","sea","main"]},side:{name:"配菜",cats:["egg","veg"]},veg:{name:"青菜",cats:["veg"]},soup:{name:"湯",cats:["soup"]}};
 // 家裡通常有的調味料，不列進要買的東西
 const STAPLES=new Set(["醬油","醬油膏","蠔油","味醂","鹽","黑胡椒","芝麻","醬汁","美乃滋","味噌","韓式辣醬","綠咖哩醬","咖哩塊","蒜","蒜頭","薑","薑泥","蔥","奶油","烘焙紙","白米"]);
 const GROUPS=[
@@ -607,10 +611,11 @@ function weight(d,slot,have,ctx){
 }
 function pick(slot,used,avoidTag){
   const have=haveSet(),ctx=planCtx(used);
-  let pool=DISHES.filter(d=>SLOT[slot].cats.includes(d.c)&&!used.has(d.n));
-  if(!pool.length)pool=DISHES.filter(d=>SLOT[slot].cats.includes(d.c));
+  const fits=d=>SLOT[slot].ok?SLOT[slot].ok(d):SLOT[slot].cats.includes(d.c);
+  let pool=DISHES.filter(d=>fits(d)&&!used.has(d.n));
+  if(!pool.length)pool=DISHES.filter(fits);
   const noRepeat=pool.filter(d=>proteinTag(d)!==avoidTag);
-  if(slot==="main"&&avoidTag&&noRepeat.length)pool=noRepeat;
+  if((slot==="main"||slot==="pot")&&avoidTag&&noRepeat.length)pool=noRepeat;
   const ws=pool.map(d=>weight(d,slot,have,ctx));
   let r=Math.random()*ws.reduce((a,b)=>a+b,0);
   for(let i=0;i<pool.length;i++){r-=ws[i];if(r<=0)return pool[i]}
@@ -630,9 +635,9 @@ function makePlan(){
   let lastTag=null;
   for(const day of [...M.days].sort((a,b)=>a-b)){
     for(const row of plan[day]){
-      if(!row.n){const d=pick(row.slot,used,row.slot==="main"?lastTag:null);row.n=d.n;used.add(d.n)}
+      if(!row.n){const d=pick(row.slot,used,row.slot==="main"||row.slot==="pot"?lastTag:null);row.n=d.n;used.add(d.n)}
     }
-    const main=plan[day].find(r=>r.slot==="main");
+    const main=plan[day].find(r=>r.slot==="main"||r.slot==="pot");
     lastTag=main?proteinTag(byName.get(main.n)):null;
   }
   M.plan=plan;saveM();renderPlan();
@@ -709,12 +714,13 @@ function renderSummary(){
   const veg=new Set(all.flatMap(d=>d.i.filter(x=>groupOf(x)==="veg"&&!STAPLES.has(x))));
   const noVegDays=days.filter(day=>{const ds=M.plan[day].map(r=>byName.get(r.n)).filter(Boolean);
     return !ds.some(d=>d.c==="veg")&&ds.flatMap(d=>d.i.filter(x=>groupOf(x)==="veg"&&!STAPLES.has(x))).length<2});
-  const mains=days.map(day=>byName.get((M.plan[day].find(r=>r.slot==="main")||{}).n)).filter(Boolean);
+  const mains=days.map(day=>byName.get((M.plan[day].find(r=>r.slot==="main"||r.slot==="pot")||{}).n)).filter(Boolean);
   const red=mains.filter(d=>proteinsOf(d).some(p=>p==="pork"||p==="beef")).length;
   const kinds=PROTEINS.filter(p=>prot[p.k]).length;
   const tips=[];
-  tips.push(noVegDays.length?{ok:false,t:`${noVegDays.map(d=>WEEK[d]).join("、")}沒有青菜，可以把配菜換成一道青菜`}:{ok:true,t:"每天都有青菜"});
-  tips.push(veg.size>=days.length+3?{ok:true,t:`這週吃到 ${veg.size} 種蔬菜`}:{ok:false,t:`這週只有 ${veg.size} 種蔬菜，換一道不同的青菜會更豐富`});
+  tips.push(noVegDays.length?{ok:false,t:`${noVegDays.map(d=>WEEK[d]).join("、")}沒有青菜，${M.meal==="pot"?"可以換成蔬菜多一點的鍋":"可以把配菜換成一道青菜"}`}:{ok:true,t:"每天都有青菜"});
+  const pot=M.meal==="pot";
+  tips.push(veg.size>=days.length+(pot?1:3)?{ok:true,t:`這週吃到 ${veg.size} 種蔬菜`}:{ok:false,t:`這週只有 ${veg.size} 種蔬菜，${pot?"換成蔬菜多一點的鍋":"換一道不同的青菜"}會更豐富`});
   tips.push(kinds>=3?{ok:true,t:`蛋白質來源有 ${kinds} 種，很分散`}:{ok:false,t:`蛋白質來源只有 ${kinds} 種，可以換一道不同的肉或海鮮`});
   if(red>Math.ceil(days.length/2))tips.push({ok:false,t:`豬肉、牛肉當主菜 ${red} 次，可以換成雞肉或海鮮`});
   if(!prot.sea&&days.length>=3)tips.push({ok:false,t:"這週沒有海鮮，可以排一道魚或蝦"});
