@@ -168,13 +168,39 @@ details.field[open] summary::before{transform:rotate(90deg)}
 .ops button:hover{background:var(--grid);color:var(--ink)}
 .ops button[aria-pressed="true"]{color:var(--ink);background:var(--pink-bg)}
 .ops svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.shop{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.shop{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);max-height:calc(100vh - 32px);overflow:auto}
+@media (max-width:880px){.shop{position:static;max-height:none;overflow:visible}}
 .shop .grp{margin-top:12px}
 .shop h4{margin:0 0 6px;font-size:13px;color:var(--soft);font-weight:500;letter-spacing:.05em;border-bottom:1.5px dashed var(--line);padding-bottom:4px}
-.item{display:flex;align-items:baseline;gap:8px;padding:3px 0;cursor:pointer;font-size:15px}
-.item input{accent-color:var(--pink);width:16px;height:16px;flex:0 0 auto;transform:translateY(2px)}
-.item small{color:var(--soft);font-size:12px;margin-left:auto;text-align:right;min-width:0}
-.item.done span{text-decoration:line-through;color:var(--soft)}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:4px 0;font-size:15px}
+.item input[type=checkbox]{accent-color:var(--pink);width:17px;height:17px;margin:0}
+.item label{display:grid;line-height:1.3;cursor:pointer;min-width:0}
+.item label small{color:var(--soft);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item.done label span{text-decoration:line-through;color:var(--soft)}
+.price{display:flex;align-items:baseline;gap:1px;font-size:13px;color:var(--soft);font-variant-numeric:tabular-nums}
+.price input{width:52px;font:inherit;font-size:14px;color:var(--ink);background:transparent;border:0;border-bottom:1.5px dashed var(--line);text-align:right;padding:1px 2px;-moz-appearance:textfield}
+.price input::-webkit-inner-spin-button,.price input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.price input:focus{outline:none;border-bottom-color:var(--pink);background:var(--pink-bg)}
+.price.edited input{color:var(--cta);font-weight:700}
+.price small{font-size:11px;max-width:48px;overflow:hidden;white-space:nowrap}
+.sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:18px}
+@media (max-width:760px){.sum{grid-template-columns:minmax(0,1fr)}}
+.sum section{min-width:0}
+.sh{font-family:var(--f-display);font-weight:400;font-size:18px;margin:0 0 8px}
+.big{font-family:var(--f-display);font-size:34px;line-height:1.1;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.sum .hint{margin:4px 0 0;font-size:12px}
+.pbars{display:grid;gap:5px;margin-bottom:10px}
+.pbar{display:grid;grid-template-columns:44px minmax(0,1fr) 18px;align-items:center;gap:8px;font-size:13px}
+.pbar i{display:block;height:9px;background:var(--grid);border-radius:999px;overflow:hidden}
+.pbar b{display:block;height:100%;background:var(--pink);border-radius:999px;min-width:0}
+.pbar em{font-style:normal;color:var(--soft);text-align:right;font-variant-numeric:tabular-nums}
+.tips{list-style:none;margin:0;padding:0;display:grid;gap:5px;font-size:13px}
+.tips li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px;align-items:start}
+.tips li::before{content:"";width:16px;height:16px;border-radius:50%;margin-top:2px;background:var(--mint-bg);border:2px solid var(--mint)}
+.tips li.warn::before{background:var(--butter-bg);border-color:var(--butter)}
+.kcal{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:14px}
+.kcal li{display:flex;justify-content:space-between;border-bottom:1.5px dotted var(--line);padding:2px 0;font-variant-numeric:tabular-nums}
+.kcal b{font-weight:500}
 .chiplist{display:flex;flex-wrap:wrap;gap:5px}
 .chiplist span{font-size:12px;background:var(--grid);border-radius:6px;padding:1px 8px}
 .shop .actions{margin-top:16px;align-items:center}
@@ -223,6 +249,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
         <button class="btn primary" id="planBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>幫我排菜單</button>
       </div>
     </div>
+    <div id="sumOut"></div>
     <div id="planOut"></div>
   </div>
   <aside class="panel shop" id="shopOut" aria-label="購物清單"></aside>
@@ -490,12 +517,60 @@ function groupOf(x){
   return "veg";
 }
 const byName=new Map(DISHES.map(d=>[d.n,d]));
+
+// 台灣超市買一份的大概價格（NT$），可在購物清單裡改成實際價格
+const PRICE={
+  "蛋":[75,"盒10顆"],"紅蘿蔔":[35,"2根"],"豆腐":[30,"盒"],"白菜":[60,"顆"],"香菇":[60,"盒"],"豬肉片":[130,"盒"],"番茄":[60,"盒"],
+  "雞肉":[120,"盒"],"洋蔥":[35,"2顆"],"青江菜":[35,"把"],"高麗菜":[70,"顆"],"牛肉片":[180,"盒"],"玉米":[50,"2根"],"櫛瓜":[50,"2條"],
+  "鮮蝦":[250,"盒"],"玉米筍":[35,"盒"],"杏鮑菇":[45,"包"],"絲瓜":[45,"條"],"金針菇":[25,"包"],"麵條":[40,"包"],"雞腿":[150,"盒2支"],
+  "牛肉":[280,"盒"],"青菜":[35,"把"],"義大利麵":[60,"包"],"竹筍":[70,"支"],"鮭魚":[280,"2片"],"木耳":[35,"包"],"大陸妹":[35,"把"],
+  "竹輪":[45,"包"],"豆芽菜":[20,"包"],"馬鈴薯":[40,"2顆"],"白蘿蔔":[40,"條"],"豆干":[35,"包"],"寬麵":[70,"包"],"油豆腐":[35,"包"],
+  "蛤蜊":[120,"盒"],"菇類":[45,"包"],"鮮奶油":[85,"瓶"],"排骨":[200,"盒"],"雞胸肉":[110,"盒"],"海帶芽":[50,"包"],"花椰菜":[50,"顆"],
+  "肉片":[130,"盒"],"貢丸":[90,"包"],"鱸魚排":[180,"包"],"白花椰菜":[55,"顆"],"綠花椰菜":[50,"顆"],"筍":[60,"支"],"絞肉":[120,"盒"],
+  "板豆腐":[30,"盒"],"優格":[65,"盒"],"鱸魚":[250,"尾"],"莧菜":[35,"把"],"牛蒡":[50,"根"],"泡菜":[90,"罐"],"鴻喜菇":[30,"包"],
+  "牛排":[350,"2片"],"豬五花片":[160,"盒"],"菠菜":[40,"把"],"水蓮":[40,"包"],"嫩豆腐":[30,"盒"],"雞蛋豆腐":[25,"盒"],"小白菜":[35,"把"],
+  "青椒":[35,"2顆"],"檸檬":[30,"2顆"],"蝦仁":[200,"包"],"四季豆":[45,"包"],"魚板":[50,"條"],"去骨雞腿":[160,"盒"],"鯖魚":[120,"片"],
+  "九層塔":[20,"把"],"豆乳":[45,"瓶"],"泡麵":[50,"2包"],"生菜":[45,"顆"],"地瓜":[50,"2條"],"椰奶":[50,"罐"],"肉絲":[110,"盒"],
+  "鹹蛋黃":[60,"4顆"],"魚片":[150,"盒"],"皮蛋":[45,"盒"],"芹菜":[25,"把"]
+};
+// 一人份大約熱量（kcal），不含白飯
+const KCAL={
+  "照燒雞腿":380,"洋蔥炒肉片":330,"薑燒豬肉":350,"香煎雞腿時蔬":380,"洋蔥燒雞腿":370,"紅燒雞腿":360,"炒雞柳":220,"青椒炒牛肉":280,
+  "洋蔥炒牛肉":300,"高麗菜炒牛肉":280,"醬爆牛肉片":320,"煎牛排":450,"骰子牛":400,"番茄紅蘿蔔燉牛肉":380,"馬鈴薯燉肉":380,
+  "韓式辣炒豬肉":380,"蔥爆肉片":330,"豆干炒肉絲":280,"什錦蔬菜炒肉片":300,"豆芽炒肉片":260,"涮豬肉片佐醬":320,
+  "香煎奶油鮭魚":380,"紙包烤鮭魚":300,"清蒸鱸魚":200,"香煎鱸魚排":230,"烤鯖魚":330,"絲瓜燴鮮蝦":180,"絲瓜蛤蜊炒蛋":170,
+  "蒜香奶油蝦":250,"鹽烤鮮蝦":150,"蝦仁燴豆腐":200,
+  "番茄炒蛋":200,"雞蛋豆腐":200,"菇菇豆腐":180,"家常豆腐":260,"青江菜燴豆腐":150,"豆腐炒蛋":220,"皮蛋豆腐":160,"滷豆干":180,
+  "小白菜炒蛋":150,"高麗菜炒蛋":160,"竹筍炒蛋":160,"玉米炒蛋":200,"九層塔烘蛋":200,"烘蛋":190,"歐姆蛋":250,"荷包蛋":100,
+  "清炒高麗菜":80,"香菇炒高麗菜":90,"竹輪炒高麗菜":130,"燙大陸妹":40,"香菇炒大陸妹":70,"大陸妹炒玉米筍":70,"燙青江菜":40,
+  "青江菜炒杏鮑菇":80,"青江菜炒紅蘿蔔":70,"炒水蓮":70,"清炒花椰菜":80,"白花椰炒香菇":80,"煎櫛瓜":80,"炒櫛瓜":90,"金沙杏鮑菇":200,
+  "香菇炒杏鮑菇":100,"莧菜蛋花":100,"木耳香菇炒青菜":80,"金針菇炒紅蘿蔔絲":80,"香菇炒牛蒡":120,"白菜炒木耳":70,"什錦炒時蔬":90,
+  "炒四季豆":90,"金針菇炒豆芽":70,"炒白蘿蔔絲":70,"生菜沙拉":60,"馬鈴薯沙拉":220,
+  "蒜頭香菇雞湯":280,"香菇竹筍雞湯":250,"玉米高麗菜雞湯":250,"味噌豆乳番茄鍋":300,"壽喜燒":480,"韓式泡菜鍋":280,"什錦豆腐鍋":320,
+  "番茄高麗菜排骨湯":300,"竹筍蘿蔔排骨湯":260,"番茄牛肉湯":300,"番茄白菜豆腐鍋":300,"白菜豬肉片湯":220,"絲瓜肉片湯":180,
+  "絲瓜金針菇湯":160,"味噌豆腐湯":90,"海帶芽蛋花湯":90,"菠菜蛋花湯":80,"青江菜豆腐湯":80,"竹輪豆腐湯":140,"貢丸湯":180,
+  "豆腐魚湯":160,"蛤蜊蛋花鍋":180,"鮮蝦白菜豆腐鍋":250,"鮮蝦雞肉湯鍋":300,"雞肉蔬菜鍋":280,"高麗菜荷包蛋鍋":260,"玉米蛋花湯":120,
+  "雞肉優格咖哩飯":650,"綠咖哩雞":450,"親子丼":650,"牛丼":700,"香菇雞肉鹹粥":380,"雞胸肉健康餐盒":450,"鮮蝦義大利麵":600,
+  "鮭魚奶油義大利麵":750,"奶油蔬菜義大利麵":650,"茄汁櫛瓜義大利麵":520,"肉醬義大利麵":650,"番茄牛肉麵":600,"牛肉湯麵":550,
+  "雞絲湯麵":450,"白菜豬肉湯麵":500,"番茄蔬菜泡麵":500
+};
+const RICE_KCAL=280;
+// 已含飯或麵、不用另外配白飯的菜
+const HAS_CARB=new Set(["雞肉優格咖哩飯","親子丼","牛丼","香菇雞肉鹹粥","雞胸肉健康餐盒","鮮蝦義大利麵","鮭魚奶油義大利麵","奶油蔬菜義大利麵",
+  "茄汁櫛瓜義大利麵","肉醬義大利麵","番茄牛肉麵","牛肉湯麵","雞絲湯麵","白菜豬肉湯麵","番茄蔬菜泡麵"]);
+const PROTEINS=[
+  {k:"chicken",name:"雞",re:/雞(?!蛋)/},{k:"pork",name:"豬",re:/豬|排骨|絞肉|貢丸|^肉片$|^肉絲$/},{k:"beef",name:"牛",re:/牛(?!蒡)/},
+  {k:"sea",name:"海鮮",re:/魚|蝦|蛤蜊|竹輪/},{k:"soy",name:"蛋・豆",re:/蛋|豆腐|豆干|豆乳/}
+];
+const priceOf=x=>{const o=M.prices&&M.prices[x];return Number.isFinite(o)?o:(PRICE[x]?PRICE[x][0]:40)};
+const unitOf=x=>PRICE[x]?PRICE[x][1]:"份";
+const proteinsOf=d=>PROTEINS.filter(p=>d.i.some(x=>p.re.test(x))).map(p=>p.k);
 const ICON={
   swap:'<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg>',
   lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
 };
 
-let M={days:[0,1,2,3,4],meal:"2+1",have:[],plan:null,checked:[]};
+let M={days:[0,1,2,3,4],meal:"2+1",have:[],plan:null,checked:[],prices:{}};
 try{const s=JSON.parse(localStorage.getItem("kitchen-menu-v1")||"null");if(s&&Array.isArray(s.days))M={...M,...s}}catch(e){}
 const saveM=()=>{try{localStorage.setItem("kitchen-menu-v1",JSON.stringify(M))}catch(e){}};
 const haveSet=()=>new Set(M.have);
@@ -506,20 +581,37 @@ function proteinTag(d){
     if(d.n.includes(k)||d.i.some(x=>x.includes(k)))return t;
   return d.n;
 }
-function weight(d,slot,have){
-  let w=1+Math.min(d.p.length,8)*0.25;           // 常做的菜比較容易被選到
+// 這週已排進去的菜的狀況：用過的食材、各種蛋白質出現幾次、吃過哪些蔬菜
+function planCtx(names){
+  const ingr=new Set(),prot={},veg=new Set();
+  for(const n of names){const d=byName.get(n);if(!d)continue;
+    d.i.forEach(x=>{ingr.add(x);if(groupOf(x)==="veg")veg.add(x)});
+    proteinsOf(d).forEach(p=>prot[p]=(prot[p]||0)+1);
+  }
+  return {ingr,prot,veg};
+}
+function weight(d,slot,have,ctx){
+  let w=1+Math.min(d.p.length,8)*0.25;             // 常做的菜比較容易被選到
   const m=d.i.filter(x=>have.has(x)).length;
-  if(have.size)w*=m?1+3*m:0.3;                     // 用得到冰箱食材的優先
-  if(slot==="main"&&d.c==="main")w*=0.5;           // 飯麵類偶爾當主菜
+  if(have.size)w*=m?1+3*m:0.3;                       // 用得到冰箱食材的優先
+  if(slot==="main"&&d.c==="main")w*=0.5;             // 飯麵類偶爾當主菜
+  // 省錢：要另外買的食材越貴越少選；跟這週其他菜共用食材的加分
+  const extra=d.i.filter(x=>!STAPLES.has(x)&&!have.has(x)&&!ctx.ingr.has(x)).reduce((a,x)=>a+priceOf(x),0);
+  w*=1/(1+extra/300);
+  // 均衡：同一種蛋白質這週出現越多次越少選；帶來新蔬菜的加分
+  const ps=proteinsOf(d);
+  if(ps.length)w*=1/(1+0.7*Math.max(...ps.map(p=>ctx.prot[p]||0)));
+  const newVeg=d.i.filter(x=>groupOf(x)==="veg"&&!STAPLES.has(x)&&!ctx.veg.has(x)).length;
+  w*=1+0.3*newVeg;
   return w;
 }
 function pick(slot,used,avoidTag){
-  const have=haveSet();
+  const have=haveSet(),ctx=planCtx(used);
   let pool=DISHES.filter(d=>SLOT[slot].cats.includes(d.c)&&!used.has(d.n));
   if(!pool.length)pool=DISHES.filter(d=>SLOT[slot].cats.includes(d.c));
   const noRepeat=pool.filter(d=>proteinTag(d)!==avoidTag);
   if(slot==="main"&&avoidTag&&noRepeat.length)pool=noRepeat;
-  const ws=pool.map(d=>weight(d,slot,have));
+  const ws=pool.map(d=>weight(d,slot,have,ctx));
   let r=Math.random()*ws.reduce((a,b)=>a+b,0);
   for(let i=0;i<pool.length;i++){r-=ws[i];if(r<=0)return pool[i]}
   return pool.at(-1);
@@ -546,8 +638,9 @@ function makePlan(){
   M.plan=plan;saveM();renderPlan();
 }
 function swapDish(day,i){
-  const used=new Set(Object.values(M.plan).flat().map(r=>r.n));
   const row=M.plan[day][i];
+  const used=new Set(Object.values(M.plan).flat().filter(r=>r!==row).map(r=>r.n));
+  used.add(row.n);
   const d=pick(row.slot,used,null);
   row.n=d.n;row.lock=false;saveM();renderPlan();
 }
@@ -602,26 +695,72 @@ function shopData(){
   }
   return {need,haveUsed,staples};
 }
+const money=n=>"NT$"+Math.round(n).toLocaleString("en-US");
+function planDays(){return Object.keys(M.plan||{}).map(Number).sort((a,b)=>a-b)}
+function renderSummary(){
+  if(!M.plan||!planDays().length){$("#sumOut").innerHTML="";return}
+  const days=planDays(), {need}=shopData();
+  const total=[...need.keys()].reduce((a,x)=>a+priceOf(x),0);
+  const top=[...need.keys()].sort((a,b)=>priceOf(b)-priceOf(a)).slice(0,3);
+  // 均衡度
+  const all=days.flatMap(d=>M.plan[d].map(r=>byName.get(r.n)).filter(Boolean));
+  const prot={};all.forEach(d=>proteinsOf(d).forEach(p=>prot[p]=(prot[p]||0)+1));
+  const maxP=Math.max(1,...Object.values(prot));
+  const veg=new Set(all.flatMap(d=>d.i.filter(x=>groupOf(x)==="veg"&&!STAPLES.has(x))));
+  const noVegDays=days.filter(day=>{const ds=M.plan[day].map(r=>byName.get(r.n)).filter(Boolean);
+    return !ds.some(d=>d.c==="veg")&&ds.flatMap(d=>d.i.filter(x=>groupOf(x)==="veg"&&!STAPLES.has(x))).length<2});
+  const mains=days.map(day=>byName.get((M.plan[day].find(r=>r.slot==="main")||{}).n)).filter(Boolean);
+  const red=mains.filter(d=>proteinsOf(d).some(p=>p==="pork"||p==="beef")).length;
+  const kinds=PROTEINS.filter(p=>prot[p.k]).length;
+  const tips=[];
+  tips.push(noVegDays.length?{ok:false,t:`${noVegDays.map(d=>WEEK[d]).join("、")}沒有青菜，可以把配菜換成一道青菜`}:{ok:true,t:"每天都有青菜"});
+  tips.push(veg.size>=days.length+3?{ok:true,t:`這週吃到 ${veg.size} 種蔬菜`}:{ok:false,t:`這週只有 ${veg.size} 種蔬菜，換一道不同的青菜會更豐富`});
+  tips.push(kinds>=3?{ok:true,t:`蛋白質來源有 ${kinds} 種，很分散`}:{ok:false,t:`蛋白質來源只有 ${kinds} 種，可以換一道不同的肉或海鮮`});
+  if(red>Math.ceil(days.length/2))tips.push({ok:false,t:`豬肉、牛肉當主菜 ${red} 次，可以換成雞肉或海鮮`});
+  if(!prot.sea&&days.length>=3)tips.push({ok:false,t:"這週沒有海鮮，可以排一道魚或蝦"});
+  // 熱量（一人份）
+  const kcal=days.map(day=>{const ns=M.plan[day].map(r=>r.n);
+    return ns.reduce((a,n)=>a+(KCAL[n]||200),0)+(ns.some(n=>HAS_CARB.has(n))?0:RICE_KCAL)});
+  const avg=kcal.reduce((a,b)=>a+b,0)/kcal.length;
+  $("#sumOut").innerHTML=`<div class="panel sum">
+    <section><h3 class="sh">預估花費</h3><div class="big">${money(total)}</div>
+      <p class="hint">平均每天約 ${money(total/days.length)}，以「每樣食材買一份」估算，可在購物清單改成實際價格</p>
+      ${top.length?`<p class="hint">最貴的：${top.map(x=>`${x} ${money(priceOf(x))}`).join("、")}</p>`:""}</section>
+    <section><h3 class="sh">均衡度</h3>
+      <div class="pbars">${PROTEINS.map(p=>`<div class="pbar"><span>${p.name}</span><i><b style="width:${(prot[p.k]||0)/maxP*100}%"></b></i><em>${prot[p.k]||0}</em></div>`).join("")}</div>
+      <ul class="tips">${tips.map(x=>`<li class="${x.ok?"ok":"warn"}">${x.t}</li>`).join("")}</ul></section>
+    <section><h3 class="sh">熱量<span class="hint">（一人份）</span></h3>
+      <ul class="kcal">${days.map((d,i)=>`<li><span>${WEEK[d]}</span><b>約 ${Math.round(kcal[i]/10)*10} kcal</b></li>`).join("")}</ul>
+      <p class="hint">平均一餐約 ${Math.round(avg/10)*10} kcal。沒有麵飯的那餐已加一碗白飯（${RICE_KCAL} kcal），數字只是粗估。</p></section>
+  </div>`;
+}
 function renderShop(){
-  if(!M.plan){$("#shopOut").innerHTML=`<h2 class="ph">購物清單</h2><p class="hint">排好菜單後，要買的食材會列在這裡。</p>`;return}
+  if(!M.plan){$("#shopOut").innerHTML=`<h2 class="ph">購物清單</h2><p class="hint">排好菜單後，要買的食材會列在這裡。</p>`;renderSummary();return}
   const {need,haveUsed,staples}=shopData();
   const checked=new Set(M.checked);
   const done=[...need.keys()].filter(x=>checked.has(x)).length;
-  $("#shopOut").innerHTML=`<h2 class="ph">購物清單</h2><p class="hint">要買 ${need.size} 樣，已買 ${done} 樣</p>`+
+  const total=[...need.keys()].reduce((a,x)=>a+priceOf(x),0);
+  $("#shopOut").innerHTML=`<h2 class="ph">購物清單</h2><p class="hint">要買 ${need.size} 樣，約 ${money(total)}，已買 ${done} 樣。價格可以直接改。</p>`+
     GROUPS.map(g=>{
       const xs=[...need].filter(([x])=>groupOf(x)===g.k);
       return xs.length?`<div class="grp"><h4>${g.name}</h4>`+xs.map(([x,ds])=>
-        `<label class="item${checked.has(x)?" done":""}"><input type="checkbox" data-buy="${x}"${checked.has(x)?" checked":""}><span>${x}</span><small>${ds.length>1?ds.length+" 道菜":ds[0]}</small></label>`).join("")+`</div>`:"";
+        `<div class="item${checked.has(x)?" done":""}">
+          <input type="checkbox" id="buy-${x}" data-buy="${x}"${checked.has(x)?" checked":""}>
+          <label for="buy-${x}"><span>${x}</span><small>${ds.length>1?ds.length+" 道菜":ds[0]}</small></label>
+          <span class="price${M.prices&&Number.isFinite(M.prices[x])?" edited":""}">$<input type="number" inputmode="numeric" min="0" step="5" id="price-${x}" data-price="${x}" value="${priceOf(x)}" aria-label="${x} 的價格"><small>/${unitOf(x)}</small></span>
+        </div>`).join("")+`</div>`:"";
     }).join("")+
     (haveUsed.size?`<div class="grp"><h4>冰箱已有，不用買</h4><div class="chiplist">${[...haveUsed].map(x=>`<span>${x}</span>`).join("")}</div></div>`:"")+
     (staples.size?`<div class="grp"><h4>確認家裡還有</h4><div class="chiplist">${[...staples].map(x=>`<span>${x}</span>`).join("")}</div></div>`:"")+
     `<div class="actions"><button class="btn" id="copyBtn">複製菜單和購物清單</button><span class="copymsg" id="copyMsg" role="status"></span></div><div id="copyFallback"></div>`;
+  renderSummary();
 }
 function planText(){
   const {need}=shopData();
   const days=Object.keys(M.plan).map(Number).sort((a,b)=>a-b);
   let t="【本週菜單】\n"+days.map(d=>`${WEEK[d]}：${M.plan[d].map(r=>r.n).join("、")}`).join("\n")+"\n\n【購物清單】\n";
   for(const g of GROUPS){const xs=[...need.keys()].filter(x=>groupOf(x)===g.k);if(xs.length)t+=`${g.name}：${xs.join("、")}\n`}
+  t+=`\n預估花費：約 ${money([...need.keys()].reduce((a,x)=>a+priceOf(x),0))}`;
   return t.trim();
 }
 
@@ -647,9 +786,18 @@ $("#menuView").addEventListener("click",e=>{
   }
 });
 $("#menuView").addEventListener("change",e=>{
-  const x=e.target.dataset&&e.target.dataset.buy; if(!x)return;
-  M.checked=e.target.checked?[...new Set([...M.checked,x])]:M.checked.filter(y=>y!==x);
-  saveM();renderShop();
+  const ds=e.target.dataset||{};
+  if(ds.buy){
+    const x=ds.buy;
+    M.checked=e.target.checked?[...new Set([...M.checked,x])]:M.checked.filter(y=>y!==x);
+    saveM();renderShop();$(`#buy-${CSS.escape(x)}`)?.focus();
+  }else if(ds.price){
+    // 清空就恢復成預估價
+    const x=ds.price,v=e.target.value.trim(),n=Number(v);
+    M.prices={...(M.prices||{})};
+    if(v===""||!Number.isFinite(n)||n<0)delete M.prices[x];else M.prices[x]=Math.round(n);
+    saveM();renderShop();
+  }
 });
 
 function showView(v){
