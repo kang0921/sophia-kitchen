@@ -213,6 +213,16 @@ details.field[open] summary::before{transform:rotate(90deg)}
 .copymsg{font-size:13px;color:var(--soft)}
 .copybox{width:100%;min-height:140px;margin-top:10px;font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:8px}
 .empty-plan{color:var(--soft);margin-top:20px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+label.btn{display:inline-block}
+.weekbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 12px;margin-bottom:14px}
+.weekbar .btn{font-size:14px;padding:6px 14px}
+.dd{font-family:var(--f-body);font-size:13px;color:var(--soft)}
+button.tag.kc{font:inherit;font-size:11px;cursor:pointer}
+button.tag.kc:hover,.kcbtn:hover{text-decoration:underline}
+.tag.kc.edited,.kcbtn.edited{color:var(--cta);font-weight:700}
+.kcbtn{font:inherit;font-size:11px;color:var(--soft);background:none;border:0;padding:0;cursor:pointer;border-bottom:1px dashed var(--line)}
+.kcbtn:focus-visible,button.tag.kc:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
 .kcalset{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
 .switch{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px}
 .switch input{width:18px;height:18px;accent-color:var(--pink);margin:0}
@@ -281,13 +291,9 @@ details.field[open] summary::before{transform:rotate(90deg)}
 /* 分享來的菜單 */
 .incoming{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--butter-bg);border:2px dashed var(--butter);border-radius:10px;padding:12px 14px;margin-bottom:16px}
 .incoming p{margin:0;flex:1 1 220px}
-/* 每天的標題列與「煮好了」 */
+/* 每天的標題列 */
 .day-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
 .day-head h3{margin:0}
-.cooked{font:inherit;font-size:12px;color:var(--soft);background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:3px 10px;cursor:pointer;white-space:nowrap}
-.cooked[aria-pressed="true"]{background:var(--mint-bg);border-color:var(--mint);color:var(--ink);font-weight:700}
-.cooked:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
-.day.done{opacity:.75}
 /* 購物模式 */
 .shopmode{position:fixed;inset:0;z-index:35;background:var(--paper);overflow:auto;
   padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
@@ -340,7 +346,7 @@ details.field[open] summary::before{transform:rotate(90deg)}
 
 <section class="wrap textview" id="textView" hidden aria-label="文字清單">
   <div class="tl-top">
-    <div><h2 class="ph" style="margin:0">最常煮的菜</h2><p class="hint" style="margin:4px 0 0">點菜名可以看照片。次數＝照片裡出現的次數，加上「今天煮了」的紀錄。</p></div>
+    <div><h2 class="ph" style="margin:0">最常煮的菜</h2><p class="hint" style="margin:4px 0 0">點菜名可以看照片。次數＝這道菜出現在幾張照片裡。</p></div>
     <div class="tl-tools">
       <label class="search" for="tq">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
@@ -356,9 +362,11 @@ details.field[open] summary::before{transform:rotate(90deg)}
 
 <section class="menu wrap" id="menuView" hidden aria-label="本週菜單">
   <div style="min-width:0">
+    <div id="weekNotice"></div>
     <div id="incoming"></div>
     <div class="panel">
-      <h2 class="ph">排這週的菜單</h2>
+      <div class="weekbar"><h2 class="ph" style="margin:0">排 <span id="weekLabel"></span> 的菜單</h2>
+        <button class="btn" id="nextWeek">開始下一週</button></div>
       <div class="field"><span class="lbl">要煮哪幾天</span><div class="seg" id="daysSel"></div></div>
       <div class="field"><span class="lbl">一餐幾道菜</span><div class="seg" id="mealSel"></div></div>
       <div class="field"><span class="lbl">一餐熱量 <span class="hint">一人份，含 3/4 碗白飯</span></span>
@@ -369,6 +377,15 @@ details.field[open] summary::before{transform:rotate(90deg)}
         <summary><span class="lbl">冰箱裡有的食材</span><span class="hint" id="haveCount">選填，會優先用掉</span></summary>
         <div class="have" id="haveSel"></div>
         <div><button class="btn small" id="haveClear" hidden>清除已選食材</button></div>
+      </details>
+      <details class="field" id="backupBox">
+        <summary><span class="lbl">備份與還原</span><span class="hint">換手機或清除瀏覽紀錄前先備份</span></summary>
+        <div class="actions" style="margin-top:8px">
+          <button class="btn" id="backupBtn">下載備份檔</button>
+          <label class="btn" for="restoreFile">從備份檔還原</label>
+          <input type="file" id="restoreFile" class="vh" accept="application/json,.json">
+        </div>
+        <div id="backupMsg" role="status"></div>
       </details>
       <div class="plan-actions">
         <p class="hint" style="flex:1 1 100%;margin:0">改天數或道數，下面的菜單會自動更新。想整週換一批，按這顆（鎖住的菜不會換）。</p>
@@ -609,7 +626,7 @@ function render(q=""){
             <img src="${cover(d)}" alt="${d.n}" loading="lazy">
             ${d.p.length>1?`<span class="count">${d.p.length} 張</span>`:""}
           </button>
-          <div class="tags"><span class="tag">${tagOf(d)}</span><span class="tag kc">約 ${KCAL[d.n]||200} kcal</span></div>
+          <div class="tags"><span class="tag">${tagOf(d)}</span><button class="tag kc${Number.isFinite(KCO[d.n])?" edited":""}" data-kc="${d.n}" title="改熱量">約 ${kcalOf(d.n)} kcal</button></div>
           <h3>${d.n}</h3><p>${d.d}</p>
           <div class="ing">${d.i.map(x=>`<span>${x}</span>`).join("")}</div>
           <div class="meta"><span title="第一次 ${ds[0]}">最近 <b>${last}</b></span><span>做過 <b>${timesMade(d)}</b> 次</span></div>
@@ -650,6 +667,7 @@ const step=n=>{pos=(pos+n+cur.p.length)%cur.p.length;show()};
 
 $("#main").addEventListener("click",e=>{
   const a=e.target.closest(".add-fab");if(a){addToPlan(DISHES[+a.dataset.add]);return}
+  const k=e.target.closest("[data-kc]");if(k){editKcal(k.dataset.kc);return}
   const b=e.target.closest(".photo");if(b)open(DISHES[+b.dataset.i]);
 });
 // start fetching the big photo as soon as a card is pointed at, pressed or focused
@@ -736,6 +754,11 @@ const KCAL={
   "小白菜豬肉湯麵":500,"番茄蔬菜泡麵":500
 };
 Object.assign(KCAL,{"水煮花椰菜":60,"雞蛋豆腐煎蛋":220,"絲瓜蛤蜊蛋花湯":150,"毛豆胡麻豆腐":200,"小白菜炒玉米筍":70,"水煮四季豆":50,"炒大陸妹":70,"鯛魚蔬菜湯":180,"高麗菜雞湯":230,"蔬菜肉片湯":200,"味噌雞腿":380,"絲瓜玉米湯":120,"蔥蛋":180});
+// 自己改過的熱量（一人份），會記在瀏覽器裡
+let KCO={};
+try{KCO=JSON.parse(localStorage.getItem("kitchen-kcal-v1")||"{}")||{}}catch(e){KCO={}}
+const saveKco=()=>{try{localStorage.setItem("kitchen-kcal-v1",JSON.stringify(KCO))}catch(e){}};
+const kcalOf=n=>Number.isFinite(KCO[n])?KCO[n]:(KCAL[n]||200);
 const RICE_KCAL=210;   // 3/4 碗白飯
 // 已含飯或麵、不用另外配白飯的菜
 const HAS_CARB=new Set(["雞肉優格咖哩飯","親子丼","牛丼","香菇豬肉鹹粥","雞胸肉健康餐盒","鮮蝦義大利麵","鮭魚奶油義大利麵","奶油蔬菜義大利麵",
@@ -764,9 +787,22 @@ const ICON={
   lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
 };
 
-let M={days:[0,1,2,3,4],meal:"2+1",have:[],plan:null,checked:[],prices:{},cooked:{},kcal:{on:true,min:500,max:600}};
+let M={days:[0,1,2,3,4],meal:"2+1",have:[],plan:null,checked:[],prices:{},kcal:{on:true,min:500,max:600},weekStart:null};
 try{const s=JSON.parse(localStorage.getItem("kitchen-menu-v1")||"null");if(s&&Array.isArray(s.days))M={...M,...s}}catch(e){}
 const saveM=()=>{try{localStorage.setItem("kitchen-menu-v1",JSON.stringify(M))}catch(e){}};
+// ---- 日期（格式 YYYY/MM/DD）----
+const p2=n=>String(n).padStart(2,"0");
+const toStr=t=>`${t.getFullYear()}/${p2(t.getMonth()+1)}/${p2(t.getDate())}`;
+const toDate=s=>{const [y,m,d]=s.split("/").map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const t=toDate(s);t.setDate(t.getDate()+n);return toStr(t)};
+const mondayOf=t=>{const x=new Date(t.getFullYear(),t.getMonth(),t.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return toStr(x)};
+const md=s=>{const [,m,d]=s.split("/").map(Number);return `${m}/${d}`};
+const dayDate=day=>addDays(M.weekStart,day);
+// 新菜單從哪一週開始：平日排這週，週六日就排下週
+const planStart=()=>{const t=new Date(),m=mondayOf(t);return t.getDay()===6||t.getDay()===0?addDays(m,7):m};
+if(!M.weekStart)M.weekStart=planStart();
+// 已拿掉「煮好了」：清掉舊資料留下的欄位
+delete M.cooked;delete M.week;try{localStorage.removeItem("kitchen-log-v1")}catch(e){}
 const haveSet=()=>new Set(M.have);
 const mealOf=k=>MEALS.find(m=>m.k===k)||MEALS[2];
 
@@ -789,8 +825,6 @@ function weight(d,slot,have,ctx){
   const m=d.i.filter(x=>have.has(x)).length;
   if(have.size)w*=m?1+3*m:0.3;                       // 用得到冰箱食材的優先
   if(slot==="main"&&d.c==="main")w*=0.5;             // 飯麵類偶爾當主菜
-  const since=daysSince(lastMade(d));
-  if(since<7)w*=0.15;                                // 這週剛煮過的少排
   // 省錢：要另外買的食材越貴越少選；跟這週其他菜共用食材的加分
   const extra=d.i.filter(x=>!STAPLES.has(x)&&!have.has(x)&&!ctx.ingr.has(x)).reduce((a,x)=>a+priceOf(x)/usesOf(x),0);
   w*=1/(1+extra/300);
@@ -819,11 +853,11 @@ function pick(slot,used,avoidTag,ok){
 }
 // ---- 一餐熱量 ----
 const limitOn=()=>!!(M.kcal&&M.kcal.on);
-const mealKcal=ns=>ns.reduce((a,n)=>a+(KCAL[n]||200),0)+(ns.some(n=>HAS_CARB.has(n))?0:RICE_KCAL);
+const mealKcal=ns=>ns.reduce((a,n)=>a+kcalOf(n),0)+(ns.some(n=>HAS_CARB.has(n))?0:RICE_KCAL);
 const kcalOk=k=>!limitOn()||(k>=M.kcal.min&&k<=M.kcal.max);
 const kcalDist=k=>!limitOn()?0:k<M.kcal.min?M.kcal.min-k:k>M.kcal.max?k-M.kcal.max:0;
 // 把一天裡還沒排的菜補上；有熱量限制時多試幾種組合，挑在範圍內（或最接近）的
-const kOf=n=>KCAL[n]||200;
+const kOf=n=>kcalOf(n);
 const fitsAny=(d,slot)=>SLOT[slot].ok?SLOT[slot].ok(d):SLOT[slot].cats.includes(d.c);
 // 某個位置最輕的一道菜（白飯另計）
 const minK=slot=>Math.min(...DISHES.filter(d=>fitsAny(d,slot)).map(d=>kOf(d.n)-(HAS_CARB.has(d.n)?RICE_KCAL:0)));
@@ -861,7 +895,6 @@ function makePlan(){
   // 先保留鎖住的菜
   for(const day of M.days){
     const prev=old[day]||[];
-    if(M.cooked&&M.cooked[day]&&prev.length){plan[day]=prev.map(r=>({...r}));prev.forEach(r=>used.add(r.n));continue}
     plan[day]=slots.map(slot=>{
       const keep=prev.find(x=>x.lock&&x.slot===slot&&!x._taken&&byName.has(x.n));
       if(keep){keep._taken=true;used.add(keep.n);return {slot,n:keep.n,lock:true}}
@@ -932,14 +965,13 @@ function renderPlan(){
   }
   const have=haveSet();
   const days=Object.keys(M.plan).map(Number).sort((a,b)=>a-b);
-  $("#planOut").innerHTML=`<div class="days">`+days.map(day=>`<article class="day${M.cooked&&M.cooked[day]?" done":""}"><div class="day-head"><h3>${WEEK[day]} <span class="dk${kcalOk(mealKcal(M.plan[day].map(r=>r.n)))?"":" over"}">約 ${Math.round(mealKcal(M.plan[day].map(r=>r.n))/10)*10} kcal</span></h3>
-      <button class="cooked" data-cooked="${day}" aria-pressed="${!!(M.cooked&&M.cooked[day])}">${M.cooked&&M.cooked[day]?"已煮好":"今天煮了"}</button></div><ul>`+
+  $("#planOut").innerHTML=`<div class="days">`+days.map(day=>`<article class="day"><div class="day-head"><h3>${WEEK[day]} <small class="dd">${md(dayDate(day))}</small> <span class="dk${kcalOk(mealKcal(M.plan[day].map(r=>r.n)))?"":" over"}">約 ${Math.round(mealKcal(M.plan[day].map(r=>r.n))/10)*10} kcal</span></h3></div><ul>`+
     M.plan[day].map((r,i)=>{
       const d=byName.get(r.n); if(!d)return "";
       const hits=d.i.filter(x=>have.has(x));
       return `<li class="dish-row">
         <button class="thumb" data-open="${d.n}" aria-label="看 ${d.n} 的照片"><img src="${cover(d)}" alt="" loading="lazy"></button>
-        <div class="dn"><span class="slot">${SLOT[r.slot].name} · 約 ${KCAL[d.n]||200} kcal</span><b>${d.n}</b>
+        <div class="dn"><span class="slot">${SLOT[r.slot].name} · <button class="kcbtn${Number.isFinite(KCO[d.n])?" edited":""}" data-kc="${d.n}" title="改熱量">約 ${kcalOf(d.n)} kcal</button></span><b>${d.n}</b>
           <small>${hits.length?`用掉 ${hits.map(x=>`<em>${x}</em>`).join(" ")}`:d.i.filter(x=>!STAPLES.has(x)).join("、")}</small></div>
         <div class="ops">
           <button data-pick="${day},${i}" aria-label="自己選一道" title="自己選一道">${ICON.list}</button>
@@ -1049,8 +1081,14 @@ $("#menuView").addEventListener("click",e=>{
   else if(b.id==="haveClear"){M.have=[];saveM();renderSettings();if(M.plan)renderPlan()}
   else if(b.id==="planBtn"){makePlan()}
   else if(b.dataset.pick){const [d,i]=b.dataset.pick.split(",").map(Number);pickFor(d,i)}
-  else if(b.dataset.cooked!==undefined){toggleCooked(+b.dataset.cooked)}
   else if(b.id==="shopModeBtn"){openShopMode()}
+  else if(b.dataset.kc){editKcal(b.dataset.kc)}
+  else if(b.id==="nextWeek"){const next=addDays(M.weekStart,7),cur=mondayOf(new Date());startWeek(next>cur?next:planStart())}
+  else if(b.id==="startThisWeek"){startWeek(planStart())}
+  else if(b.id==="keepWeek"){$("#weekNotice").innerHTML=""}
+  else if(b.id==="backupBtn"){backup()}
+  else if(b.id==="restoreOk"){restore()}
+  else if(b.id==="restoreNo"){pendingRestore=null;$("#backupMsg").innerHTML=""}
   else if(b.id==="shareBtn"){openShare()}
   else if(b.id==="useIncoming"){useIncoming()}
   else if(b.id==="dropIncoming"){incoming=null;$("#incoming").innerHTML="";try{history.replaceState(null,"","#menu")}catch(e){}}
@@ -1122,31 +1160,15 @@ $("#tq").addEventListener("input",renderText);
 $("#tlSort").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;tlSort=b.dataset.sort;
   [...$("#tlSort").children].forEach(x=>x.setAttribute("aria-pressed",x===b));renderText()});
 // ---------- 煮過的紀錄 ----------
-let LOG=[];
-try{LOG=JSON.parse(localStorage.getItem("kitchen-log-v1")||"[]")||[]}catch(e){LOG=[]}
-const saveLog=()=>{try{localStorage.setItem("kitchen-log-v1",JSON.stringify(LOG))}catch(e){}};
 const pad2=n=>String(n).padStart(2,"0");
 const todayStr=()=>{const t=new Date();return `${t.getFullYear()}/${pad2(t.getMonth()+1)}/${pad2(t.getDate())}`};
 function lastMade(d){
-  const ds=d.p.map(dateOf).concat(LOG.filter(e=>e.n.includes(d.n)).map(e=>e.d)).filter(Boolean).sort();
+  const ds=d.p.map(dateOf).filter(Boolean).sort();
   return ds.at(-1)||"";
 }
-const timesMade=d=>d.p.length+LOG.filter(e=>e.n.includes(d.n)).length;
+const timesMade=d=>d.p.length;
 function daysSince(s){if(!s)return 9999;const [y,m,dd]=s.split("/").map(Number);return Math.floor((Date.now()-new Date(y,m-1,dd))/864e5)}
 function ago(s){const n=daysSince(s);if(n<31)return n+" 天前";if(n<365)return Math.floor(n/30)+" 個月前";return (n/365).toFixed(1).replace(".0","")+" 年前"}
-function toggleCooked(day){
-  M.cooked=M.cooked||{};
-  const names=(M.plan[day]||[]).map(r=>r.n).filter(n=>byName.has(n));
-  if(M.cooked[day]){
-    const was=M.cooked[day];LOG=LOG.filter(e=>!(e.d===was&&e.day===day&&e.week===M.week));
-    delete M.cooked[day];toast(`已取消${WEEK[day]}的紀錄`);
-  }else{
-    M.week=M.week||Date.now();
-    const d=todayStr();M.cooked[day]=d;LOG.push({d,day,week:M.week,n:names});
-    toast(`記下來了：${d} 煮了 ${names.join("、")}`);
-  }
-  saveLog();saveM();renderPlan();render($("#q").value);
-}
 
 // ---------- 對話框與提示 ----------
 let dlgReturn=null;
@@ -1173,7 +1195,7 @@ function addToPlan(d){
     const b=e.target.closest("[data-day-add]");if(!b)return;
     const day=+b.dataset.dayAdd,rows=M.plan[day];
     let i=rows.findIndex(r=>!r.lock&&fitsSlot(d,r.slot));
-    if(i<0)i=rows.findIndex(r=>fitsSlot(d,r.slot)&&!(M.cooked&&M.cooked[day]));
+    if(i<0)i=rows.findIndex(r=>fitsSlot(d,r.slot));
     let msg;
     if(i>=0){msg=`已加到${WEEK[day]}，換掉了${rows[i].n}`;rows[i]={slot:rows[i].slot,n:d.n,lock:true}}
     else{rows.push({slot:slotFor(d),n:d.n,lock:true});msg=`已加到${WEEK[day]}（多一道菜）`}
@@ -1186,7 +1208,7 @@ function pickFor(day,i){
   openDlg(`${WEEK[day]}的${SLOT[row.slot].name}要煮什麼？`,
     `<input class="picksearch" id="pickQ" type="search" placeholder="搜尋菜名或食材" aria-label="搜尋菜名或食材"><div class="picklist" id="pickList"></div>`);
   const draw=q=>{$("#pickList").innerHTML=list.filter(d=>!q||d.n.includes(q)||d.i.some(x=>x.includes(q))).map(d=>
-    `<button data-pick-n="${d.n}"><img src="${cover(d)}" alt="" loading="lazy"><span>${d.n}</span><small>最近 ${lastMade(d)} · 約 ${KCAL[d.n]||200} kcal</small></button>`).join("")||`<p class="hint">找不到符合的菜</p>`};
+    `<button data-pick-n="${d.n}"><img src="${cover(d)}" alt="" loading="lazy"><span>${d.n}</span><small>最近 ${lastMade(d)} · 約 ${kcalOf(d.n)} kcal</small></button>`).join("")||`<p class="hint">找不到符合的菜</p>`};
   draw("");
   $("#pickQ").addEventListener("input",e=>draw(e.target.value.trim()));
   $("#dlgBody").onclick=e=>{
@@ -1201,7 +1223,7 @@ const SHARE_BASE="https://kang0921.github.io/sophia-kitchen/";
 const SLOT_CODE={main:"m",side:"s",veg:"v",soup:"u",pot:"p"},CODE_SLOT=Object.fromEntries(Object.entries(SLOT_CODE).map(([a,b])=>[b,a]));
 const idxOf=new Map(DISHES.map((d,i)=>[d.n,i]));
 function encodePlan(){
-  const o={m:M.meal,d:planDays().map(day=>[day,M.plan[day].map(r=>[SLOT_CODE[r.slot],idxOf.get(r.n),r.lock?1:0])]),h:M.have,c:M.checked,pr:M.prices};
+  const o={m:M.meal,w:M.weekStart,d:planDays().map(day=>[day,M.plan[day].map(r=>[SLOT_CODE[r.slot],idxOf.get(r.n),r.lock?1:0])]),h:M.have,c:M.checked,pr:M.prices,k:KCO};
   const bytes=new TextEncoder().encode(JSON.stringify(o));let bin="";bytes.forEach(b=>bin+=String.fromCharCode(b));
   return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
@@ -1214,7 +1236,9 @@ function decodePlan(str){
       if(!(day>=0&&day<7))return null;
       plan[day]=rows.map(([c,i,l])=>({slot:CODE_SLOT[c],n:DISHES[i]&&DISHES[i].n,lock:!!l})).filter(r=>r.slot&&r.n);
     }
-    return {meal:o.m,plan,days:Object.keys(plan).map(Number).sort((a,b)=>a-b),have:Array.isArray(o.h)?o.h:[],checked:Array.isArray(o.c)?o.c:[],prices:o.pr&&typeof o.pr==="object"?o.pr:{}};
+    const isDate=x=>typeof x==="string"&&/^\d{4}\/\d{2}\/\d{2}$/.test(x);
+    return {meal:o.m,plan,days:Object.keys(plan).map(Number).sort((a,b)=>a-b),have:Array.isArray(o.h)?o.h:[],checked:Array.isArray(o.c)?o.c:[],prices:o.pr&&typeof o.pr==="object"?o.pr:{},
+      weekStart:isDate(o.w)?o.w:M.weekStart,kco:o.k&&typeof o.k==="object"?o.k:{}};
   }catch(e){return null}
 }
 function openShare(){
@@ -1236,14 +1260,74 @@ let incoming=null;
 function showIncoming(){
   if(!incoming)return;
   const n=Object.values(incoming.plan).flat().length;
-  $("#incoming").innerHTML=`<div class="incoming"><p>收到一份分享的菜單：${incoming.days.map(d=>WEEK[d].slice(2)).join("、")}，共 ${n} 道菜。要用這份取代目前的菜單和購物清單嗎？</p>
+  $("#incoming").innerHTML=`<div class="incoming"><p>收到一份分享的菜單：${md(incoming.weekStart)} 那週的${incoming.days.map(d=>WEEK[d].slice(2)).join("、")}，共 ${n} 道菜。要用這份取代目前的菜單和購物清單嗎？</p>
     <button class="btn primary" id="useIncoming" style="font-size:16px;padding:8px 20px">使用這份</button><button class="btn" id="dropIncoming">不要</button></div>`;
 }
 function useIncoming(){
-  Object.assign(M,{meal:incoming.meal,days:incoming.days,plan:incoming.plan,have:incoming.have,checked:incoming.checked,prices:{...M.prices,...incoming.prices},cooked:{}});
-  incoming=null;$("#incoming").innerHTML="";saveM();renderSettings();renderPlan();
+  Object.assign(M,{meal:incoming.meal,days:incoming.days,plan:incoming.plan,have:incoming.have,checked:incoming.checked,prices:{...M.prices,...incoming.prices},
+    weekStart:incoming.weekStart});
+  KCO={...KCO,...incoming.kco};saveKco();
+  incoming=null;$("#incoming").innerHTML="";saveM();renderAll();
   try{history.replaceState(null,"","#menu")}catch(e){}
   toast("已換成分享的菜單");
+}
+
+// ---------- 週 ----------
+function renderWeek(){
+  const end=addDays(M.weekStart,6);
+  $("#weekLabel").textContent=`${md(M.weekStart)}～${md(end)}`;
+  const today=toStr(new Date());
+  $("#weekNotice").innerHTML=today>end?`<div class="incoming"><p>這份菜單是 ${md(M.weekStart)}～${md(end)} 的，已經過了。要開始新的一週嗎？</p>
+    <button class="btn primary" id="startThisWeek" style="font-size:16px;padding:8px 20px">開始新的一週</button><button class="btn" id="keepWeek">先不要</button></div>`:"";
+}
+function startWeek(start){
+  M.weekStart=start;M.checked=[];
+  saveM();renderWeek();makePlan();toast(`已開始 ${md(start)}～${md(addDays(start,6))} 的菜單`);
+}
+function renderAll(){renderSettings();renderWeek();renderPlan();render($("#q").value);if(!$("#textView").hidden)renderText()}
+
+// ---------- 改熱量 ----------
+function editKcal(n){
+  const est=KCAL[n]||200;
+  openDlg(`「${n}」一人份的熱量`,`<p class="hint" style="margin:0">我估的是約 ${est} kcal。照你平常的份量改成比較準的數字，排菜單和熱量總覽都會用新的數字。</p>
+    <div class="kcalrange" style="font-size:16px"><input type="number" inputmode="numeric" id="kcIn" min="0" max="3000" step="10" value="${kcalOf(n)}" aria-label="熱量"> kcal</div>
+    <div class="actions"><button class="btn primary" id="kcSave" style="font-size:16px;padding:8px 20px">儲存</button>${Number.isFinite(KCO[n])?`<button class="btn" id="kcReset">恢復成 ${est}</button>`:""}</div>`);
+  const done=msg=>{saveKco();closeDlg();renderPlan();render($("#q").value);if(!$("#textView").hidden)renderText();toast(msg)};
+  $("#kcSave").onclick=()=>{const v=Math.round(+$("#kcIn").value);if(!(v>=0&&v<=3000)){$("#kcIn").focus();return}KCO[n]=v;done(`${n} 改成約 ${v} kcal`)};
+  $("#kcIn").addEventListener("keydown",e=>{if(e.key==="Enter")$("#kcSave").click()});
+  if($("#kcReset"))$("#kcReset").onclick=()=>{delete KCO[n];done(`${n} 恢復成約 ${est} kcal`)};
+}
+
+// ---------- 備份與還原 ----------
+function backup(){
+  const data={app:"sophia-kitchen",v:1,saved:new Date().toISOString(),M,KCO};
+  const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sophia-kitchen-備份-${toStr(new Date()).replace(/\//g,"-")}.json`;
+  document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  $("#backupMsg").innerHTML=`<p class="hint">已下載備份檔，裡面有 ${planDays().length} 天菜單、${Object.keys(M.prices||{}).length} 個改過的價格和 ${Object.keys(KCO).length} 個改過的熱量。</p>`;
+}
+let pendingRestore=null;
+$("#restoreFile").addEventListener("change",e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const d=JSON.parse(rd.result);
+      if(!d||d.app!=="sophia-kitchen"||!d.M)throw 0;
+      pendingRestore=d;
+      const days=Object.keys(d.M.plan||{}).length,when=d.saved?toStr(new Date(d.saved)):"不明";
+      $("#backupMsg").innerHTML=`<div class="incoming" style="margin:10px 0 0"><p>這個備份是 ${when} 存的：${days} 天菜單。還原會取代目前的菜單、價格和熱量。</p>
+        <button class="btn primary" id="restoreOk" style="font-size:16px;padding:8px 20px">確定還原</button><button class="btn" id="restoreNo">取消</button></div>`;
+    }catch(err){pendingRestore=null;$("#backupMsg").innerHTML=`<p class="hint">這個檔案不是 Sophia 的廚房的備份檔，請選「下載備份檔」存下來的那個檔案。</p>`}
+    e.target.value="";
+  };
+  rd.readAsText(f);
+});
+function restore(){
+  const d=pendingRestore;if(!d)return;
+  M={...M,...d.M};delete M.cooked;KCO={...(d.KCO||{})};saveKco();
+  if(!M.weekStart)M.weekStart=planStart();
+  pendingRestore=null;$("#backupMsg").innerHTML="";saveM();renderAll();toast("已從備份還原");
 }
 
 // ---------- 購物模式 ----------
@@ -1282,8 +1366,7 @@ topFab.onclick=()=>{window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced
 stats();render();
 renderSettings();
 if(!M.plan)makePlan();else{syncDays();saveM();renderPlan()}
-// 「已煮好」只保留一週，下週重新排時就不會卡住
-if(M.cooked){for(const [d,t] of Object.entries(M.cooked))if(daysSince(t)>=7)delete M.cooked[d];saveM();renderPlan()}
+renderWeek();saveM();
 
 if(location.hash.startsWith("#p=")){incoming=decodePlan(location.hash.slice(3));showView("menu");if(incoming)showIncoming();else toast("這個分享連結看不懂，可能被截斷了")}
 else if(location.hash==="#menu")showView("menu");
