@@ -112,6 +112,7 @@ section.cat{scroll-margin-top:120px;padding-top:26px}
 .close{flex:0 0 auto}
 .nav-btn:focus-visible,.close:focus-visible{outline:3px solid var(--pink)}
 footer{color:var(--soft);font-size:13px;text-align:center;padding-block:0 40px}
+@media (max-width:520px){.tags .t-kind,.meta .m-last{display:none}}
 @media (max-width:520px){.grid{grid-template-columns:1fr 1fr;gap:20px 12px}.card h3{font-size:17px}.card p{display:none}.ing{display:none}.meta{flex-direction:column;gap:0}}
 @media (prefers-reduced-motion:reduce){.photo img{transition:none}.card{transform:none!important}}
 
@@ -213,6 +214,15 @@ details.field[open] summary::before{transform:rotate(90deg)}
 .copymsg{font-size:13px;color:var(--soft)}
 .copybox{width:100%;min-height:140px;margin-top:10px;font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:8px}
 .empty-plan{color:var(--soft);margin-top:20px}
+.setsum{display:none}
+@media (max-width:880px){
+  .setsum{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:-4px 0 12px;font-size:14px}
+  .setsum span{min-width:0;flex:1 1 180px;color:var(--ink);font-weight:500}
+  .setsum .btn.small{margin-top:0}
+  .setpanel.collapsed #setBody,.setpanel.collapsed .set-hint{display:none}
+}
+.repeat-note{margin:18px 0 0;font-size:14px;background:var(--butter-bg);border-left:4px solid var(--butter);border-radius:6px;padding:10px 12px}
+.rep{font-style:normal;color:var(--ink);background:var(--butter-bg);border-radius:4px;padding:0 4px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 label.btn{display:inline-block}
 .weekbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 12px;margin-bottom:14px}
@@ -364,9 +374,11 @@ button.tag.kc:hover,.kcbtn:hover{text-decoration:underline}
   <div style="min-width:0">
     <div id="weekNotice"></div>
     <div id="incoming"></div>
-    <div class="panel">
+    <div class="panel setpanel" id="setPanel">
       <div class="weekbar"><h2 class="ph" style="margin:0">排 <span id="weekLabel"></span> 的菜單</h2>
         <button class="btn" id="nextWeek">開始下一週</button></div>
+      <div class="setsum"><span id="setSumText"></span><button class="btn small" id="setToggle" aria-expanded="true" aria-controls="setBody">改設定</button></div>
+      <div id="setBody">
       <div class="field"><span class="lbl">要煮哪幾天</span><div class="seg" id="daysSel"></div></div>
       <div class="field"><span class="lbl">一餐幾道菜</span><div class="seg" id="mealSel"></div></div>
       <div class="field"><span class="lbl">一餐熱量 <span class="hint">一人份，含 3/4 碗白飯</span></span>
@@ -387,8 +399,9 @@ button.tag.kc:hover,.kcbtn:hover{text-decoration:underline}
         </div>
         <div id="backupMsg" role="status"></div>
       </details>
+      </div>
       <div class="plan-actions">
-        <p class="hint" style="flex:1 1 100%;margin:0">改天數或道數，下面的菜單會自動更新。想整週換一批，按這顆（鎖住的菜不會換）。</p>
+        <p class="hint set-hint" style="flex:1 1 100%;margin:0">改天數或道數，下面的菜單會自動更新。想整週換一批，按這顆（鎖住的菜不會換）。</p>
         <button class="btn primary" id="planBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>幫我排菜單</button>
       </div>
     </div>
@@ -626,10 +639,10 @@ function render(q=""){
             <img src="${cover(d)}" alt="${d.n}" loading="lazy">
             ${d.p.length>1?`<span class="count">${d.p.length} 張</span>`:""}
           </button>
-          <div class="tags"><span class="tag">${tagOf(d)}</span><button class="tag kc${Number.isFinite(KCO[d.n])?" edited":""}" data-kc="${d.n}" title="改熱量">約 ${kcalOf(d.n)} kcal</button></div>
+          <div class="tags"><span class="tag t-kind">${tagOf(d)}</span><button class="tag kc${Number.isFinite(KCO[d.n])?" edited":""}" data-kc="${d.n}" title="改熱量">約 ${kcalOf(d.n)} kcal</button></div>
           <h3>${d.n}</h3><p>${d.d}</p>
           <div class="ing">${d.i.map(x=>`<span>${x}</span>`).join("")}</div>
-          <div class="meta"><span title="第一次 ${ds[0]}">最近 <b>${last}</b></span><span>做過 <b>${timesMade(d)}</b> 次</span></div>
+          <div class="meta"><span class="m-last" title="第一次 ${ds[0]}">最近 <b>${last}</b></span><span>做過 <b>${timesMade(d)}</b> 次</span></div>
         </article>`}).join("")+`</div></section>`;
   }
   $("#main").innerHTML=any?html:`<div class="empty">找不到「${q.replace(/[<>&"]/g,"")}」，換個關鍵字試試看</div>`;
@@ -956,7 +969,13 @@ function renderSettings(){
   $("#haveCount").textContent=M.have.length?`已選 ${M.have.length} 樣，會優先用掉`:"選填，會優先用掉";
   $("#haveClear").hidden=!M.have.length;
   $("#haveClear").textContent=`清除已選的 ${M.have.length} 樣食材`;
+  // 收起來時顯示的一行摘要
+  $("#setSumText").textContent=[M.days.length?M.days.map(d=>WEEK[d].slice(2)).join("、"):"還沒選天數",mealOf(M.meal).name,
+    limitOn()?`${M.kcal.min}～${M.kcal.max} kcal`:"不限熱量",M.have.length?`冰箱 ${M.have.length} 樣`:""].filter(Boolean).join(" · ");
 }
+// 手機上排好菜單後，設定區先收起來
+let setOpen=!(window.innerWidth<=880&&M.plan);
+function syncSetPanel(){$("#setPanel").classList.toggle("collapsed",!setOpen);$("#setToggle").setAttribute("aria-expanded",setOpen);$("#setToggle").textContent=setOpen?"收起設定":"改設定"}
 
 function renderPlan(){
   if(!M.plan||!M.days.length){
@@ -965,13 +984,16 @@ function renderPlan(){
   }
   const have=haveSet();
   const days=Object.keys(M.plan).map(Number).sort((a,b)=>a-b);
-  $("#planOut").innerHTML=`<div class="days">`+days.map(day=>`<article class="day"><div class="day-head"><h3>${WEEK[day]} <small class="dd">${md(dayDate(day))}</small> <span class="dk${kcalOk(mealKcal(M.plan[day].map(r=>r.n)))?"":" over"}">約 ${Math.round(mealKcal(M.plan[day].map(r=>r.n))/10)*10} kcal</span></h3></div><ul>`+
+  const cnt=new Map();days.forEach(d=>M.plan[d].forEach(r=>cnt.set(r.n,(cnt.get(r.n)||0)+1)));
+  const reps=[...cnt].filter(([,c])=>c>1);
+  const note=reps.length?`<p class="repeat-note">這週有 ${reps.length} 道菜重複出現：${reps.map(([n,c])=>`${n} ×${c}`).join("、")}。${limitOn()&&(M.meal==="3+1"||M.meal==="3")?`這是因為要讓每餐都在 ${M.kcal.min}～${M.kcal.max} kcal 內，「${mealOf(M.meal).name}」能選的清淡菜不多。`:""}想換的話，按那道菜的「換一道」或「自己選一道」。</p>`:"";
+  $("#planOut").innerHTML=note+`<div class="days">`+days.map(day=>`<article class="day"><div class="day-head"><h3>${WEEK[day]} <small class="dd">${md(dayDate(day))}</small> <span class="dk${kcalOk(mealKcal(M.plan[day].map(r=>r.n)))?"":" over"}">約 ${Math.round(mealKcal(M.plan[day].map(r=>r.n))/10)*10} kcal</span></h3></div><ul>`+
     M.plan[day].map((r,i)=>{
       const d=byName.get(r.n); if(!d)return "";
       const hits=d.i.filter(x=>have.has(x));
       return `<li class="dish-row">
         <button class="thumb" data-open="${d.n}" aria-label="看 ${d.n} 的照片"><img src="${cover(d)}" alt="" loading="lazy"></button>
-        <div class="dn"><span class="slot">${SLOT[r.slot].name} · <button class="kcbtn${Number.isFinite(KCO[d.n])?" edited":""}" data-kc="${d.n}" title="改熱量">約 ${kcalOf(d.n)} kcal</button></span><b>${d.n}</b>
+        <div class="dn"><span class="slot">${SLOT[r.slot].name}${cnt.get(d.n)>1?` · <em class="rep">重複</em>`:""} · <button class="kcbtn${Number.isFinite(KCO[d.n])?" edited":""}" data-kc="${d.n}" title="改熱量">約 ${kcalOf(d.n)} kcal</button></span><b>${d.n}</b>
           <small>${hits.length?`用掉 ${hits.map(x=>`<em>${x}</em>`).join(" ")}`:d.i.filter(x=>!STAPLES.has(x)).join("、")}</small></div>
         <div class="ops">
           <button data-pick="${day},${i}" aria-label="自己選一道" title="自己選一道">${ICON.list}</button>
@@ -1080,6 +1102,7 @@ $("#menuView").addEventListener("click",e=>{
   }
   else if(b.id==="haveClear"){M.have=[];saveM();renderSettings();if(M.plan)renderPlan()}
   else if(b.id==="planBtn"){makePlan()}
+  else if(b.id==="setToggle"){setOpen=!setOpen;syncSetPanel();if(setOpen)$("#daysSel button")?.focus()}
   else if(b.dataset.pick){const [d,i]=b.dataset.pick.split(",").map(Number);pickFor(d,i)}
   else if(b.id==="shopModeBtn"){openShopMode()}
   else if(b.dataset.kc){editKcal(b.dataset.kc)}
@@ -1364,7 +1387,7 @@ window.addEventListener("scroll",syncTopFab,{passive:true});syncTopFab();
 topFab.onclick=()=>{window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});$(".tab[aria-selected=true]")?.focus({preventScroll:true})};
 
 stats();render();
-renderSettings();
+renderSettings();syncSetPanel();
 if(!M.plan)makePlan();else{syncDays();saveM();renderPlan()}
 renderWeek();saveM();
 
