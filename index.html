@@ -264,12 +264,29 @@ button.tag.kc:hover,.kcbtn:hover{text-decoration:underline}
 .tl-bar i{display:block;height:100%;background:var(--pink);border-radius:999px}
 .tl-n{text-align:right;font-variant-numeric:tabular-nums;font-size:14px}
 .tl-n b{font-family:var(--f-display);font-weight:400;font-size:20px}
-.tl-photos{display:flex;gap:8px;overflow-x:auto;padding:4px 14px 14px 58px}
+.tl-more{padding:2px 14px 14px 58px;display:grid;gap:12px}
+.tl-photos{display:flex;gap:8px;overflow-x:auto}
+.tl-review{display:grid;gap:8px;background:var(--paper);border-radius:8px;padding:12px}
+.tl-review dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:0;font-size:14px}
+.tl-review dt{color:var(--soft)}
+.tl-review dd{margin:0}
+.rv-note{font-size:13px;font-weight:500}
+.rv-text{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:8px;padding:6px 10px;resize:vertical}
+.rv-text:focus{outline:none;border-color:var(--pink)}
+.btn.primary-soft{background:var(--mint-bg);border-color:var(--mint)}
+.btn[data-rvok][aria-pressed="true"]{background:var(--mint-bg);border-color:var(--mint);font-weight:700}
+.rv-ok,.rv-has{font-style:normal;font-size:11px;font-weight:500;border-radius:999px;padding:1px 7px;vertical-align:middle}
+.rv-ok{background:var(--mint-bg)}
+.rv-has{background:var(--butter-bg)}
+.review-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:12px}
+.review-bar .btn{font-size:14px;padding:6px 14px}
+.review-bar .btn[aria-pressed="true"]{background:var(--butter-bg);border-color:var(--butter);font-weight:700}
+.review-prog{font-size:14px;color:var(--soft)}
 .tl-photos button{flex:0 0 auto;border:0;padding:0;border-radius:8px;overflow:hidden;cursor:zoom-in;background:var(--grid);display:grid;justify-items:center}
 .tl-photos button:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
 .tl-photos img{width:120px;height:120px;object-fit:cover;display:block}
 .tl-photos small{font-size:11px;color:var(--soft);padding:3px 0;font-variant-numeric:tabular-nums}
-@media (max-width:520px){.tl-head{grid-template-columns:28px minmax(0,1fr) 52px;padding:10px}.tl-bar{display:none}.tl-photos{padding-left:10px}.tl-photos img{width:96px;height:96px}}
+@media (max-width:520px){.tl-head{grid-template-columns:28px minmax(0,1fr) 52px;padding:10px}.tl-bar{display:none}.tl-more{padding-left:10px;padding-right:10px}.tl-photos img{width:96px;height:96px}}
 /* 加入菜單的小按鈕 */
 .add-fab{position:absolute;top:18px;right:18px;z-index:2;width:36px;height:36px;border-radius:50%;border:0;background:var(--cta);color:#fff;font-size:24px;line-height:1;cursor:pointer;box-shadow:0 3px 0 var(--cta-deep);display:grid;place-items:center}
 .add-fab:hover{transform:translateY(-1px)}
@@ -366,6 +383,12 @@ button.tag.kc:hover,.kcbtn:hover{text-decoration:underline}
         <button data-sort="count" aria-pressed="true">最常煮</button><button data-sort="recent" aria-pressed="false">最近煮</button><button data-sort="name" aria-pressed="false">依名稱</button>
       </div>
     </div>
+  </div>
+  <div class="review-bar" id="reviewBar">
+    <button class="btn" id="reviewToggle" aria-pressed="false">只看待確認</button>
+    <span class="review-prog" id="reviewProg"></span>
+    <button class="btn" id="reviewCopy" hidden>複製要修改的內容</button>
+    <span class="copymsg" id="reviewMsg" role="status"></span>
   </div>
   <ol class="tl" id="tlList"></ol>
 </section>
@@ -1156,9 +1179,37 @@ $("#tabMenu").onclick=()=>showView("menu");
 
 // ---------- 文字清單 ----------
 let tlSort="count";const tlOpen=new Set();
+// 待確認：哪些菜的資料（菜名、食材、熱量）已經看過沒問題，以及要修改的地方
+let RV={ok:{},note:{}};
+try{const r=JSON.parse(localStorage.getItem("kitchen-review-v1")||"null");if(r&&r.ok&&r.note)RV=r}catch(e){}
+const saveRv=()=>{try{localStorage.setItem("kitchen-review-v1",JSON.stringify(RV))}catch(e){}};
+let reviewOnly=false;
+const needsReview=d=>!RV.ok[d.n];
+function tlMore(d){
+  const idx=DISHES.indexOf(d),ok=!!RV.ok[d.n],note=RV.note[d.n]||"";
+  return `<div class="tl-review">
+      <dl><dt>簡介</dt><dd>${d.d}</dd><dt>食材</dt><dd>${d.i.join("、")}</dd><dt>熱量</dt><dd>約 ${kcalOf(d.n)} kcal（一人份）</dd></dl>
+      <label class="rv-note" for="rvn-${idx}">要修改的地方 <span class="hint">例如：食材沒有白菜、熱量太高</span></label>
+      <textarea id="rvn-${idx}" class="rv-text" data-rvnote="${d.n}" rows="2" placeholder="沒有要改就留空">${note.replace(/</g,"&lt;")}</textarea>
+      <div class="actions"><button class="btn${ok?"":" primary-soft"}" data-rvok="${d.n}" aria-pressed="${ok}">${ok?"已確認 ✓（點一下取消）":"資料都對，標成已確認"}</button></div>
+    </div>
+    <div class="tl-photos">${tlPhotos(d)}</div>`;
+}
+function renderReviewBar(){
+  const done=DISHES.filter(d=>RV.ok[d.n]).length,notes=Object.values(RV.note).filter(Boolean).length;
+  $("#reviewProg").textContent=`已確認 ${done} / ${DISHES.length} 道${notes?`，${notes} 道有要修改的地方`:""}`;
+  $("#reviewToggle").setAttribute("aria-pressed",reviewOnly);
+  $("#reviewToggle").textContent=reviewOnly?`只看待確認（${DISHES.length-done}）`:"只看待確認";
+  $("#reviewCopy").hidden=!notes;
+}
+function reviewText(){
+  const xs=DISHES.filter(d=>RV.note[d.n]);
+  return "請幫我修改 Sophia 的廚房：\n"+xs.map(d=>`- ${d.n}${d.p.length<=3?`（照片 ${d.p.map(dateOf).join("、")}）`:""}：${RV.note[d.n].trim()}`).join("\n");
+}
 function renderText(){
   const q=$("#tq").value.trim();
-  let xs=DISHES.filter(d=>!q||d.n.includes(q)||d.i.some(x=>x.includes(q)));
+  let xs=DISHES.filter(d=>(!q||d.n.includes(q)||d.i.some(x=>x.includes(q)))&&(!reviewOnly||needsReview(d)));
+  renderReviewBar();
   const by={count:(a,b)=>timesMade(b)-timesMade(a)||lastMade(b).localeCompare(lastMade(a)),
     recent:(a,b)=>lastMade(b).localeCompare(lastMade(a)),name:(a,b)=>a.n.localeCompare(b.n,"zh-Hant")}[tlSort];
   xs.sort(by);
@@ -1167,22 +1218,38 @@ function renderText(){
   $("#tlList").innerHTML=xs.length?xs.map((d,k)=>{const n=timesMade(d),idx=DISHES.indexOf(d),open=tlOpen.has(idx);
     return `<li><button class="tl-head" data-tl="${idx}" aria-expanded="${open}">
       <span class="rank">${k+1}</span>
-      <span class="tl-name"><b>${d.n}</b><small>${nameOfCat(d)} · 最近 ${lastMade(d)}</small></span>
+      <span class="tl-name"><b>${d.n}${RV.ok[d.n]?' <em class="rv-ok">已確認</em>':""}${RV.note[d.n]?' <em class="rv-has">要修改</em>':""}</b><small>${nameOfCat(d)} · 最近 ${lastMade(d)}</small></span>
       <span class="tl-bar" aria-hidden="true"><i style="width:${n/max*100}%"></i></span>
       <span class="tl-n"><b>${n}</b> 次</span></button>
-      <div class="tl-photos"${open?"":" hidden"}>${open?tlPhotos(d):""}</div></li>`}).join(""):`<li class="empty" style="padding:30px">找不到符合的菜</li>`;
+      <div class="tl-more"${open?"":" hidden"}>${open?tlMore(d):""}</div></li>`}).join(""):`<li class="empty" style="padding:30px">${reviewOnly&&!q?"全部都確認過了！":"找不到符合的菜"}</li>`;
 }
 const nameOfCat=d=>CATS.find(c=>c.k===d.c).name+"・"+CUISINES.find(c=>c.k===cuisineOf(d)).name;
 const tlPhotos=d=>d.p.map((id,k)=>`<button data-tlimg="${DISHES.indexOf(d)},${k}" aria-label="看 ${d.n} ${dateOf(id)} 的照片"><img src="${k===0?cover(d):thumb(id)}" alt="" loading="lazy"><small>${dateOf(id)}</small></button>`).join("");
 $("#tlList").addEventListener("click",e=>{
+  const okb=e.target.closest("[data-rvok]");
+  if(okb){const n=okb.dataset.rvok;if(RV.ok[n])delete RV.ok[n];else RV.ok[n]=true;saveRv();
+    if(reviewOnly&&RV.ok[n])tlOpen.delete(DISHES.indexOf(byName.get(n)));renderText();toast(RV.ok[n]?`${n} 已確認`:`${n} 改回待確認`);return}
   const im=e.target.closest("[data-tlimg]");
   if(im){const [i,k]=im.dataset.tlimg.split(",").map(Number);open(DISHES[i]);pos=k;show();return}
   const h=e.target.closest("[data-tl]");if(!h)return;
   const idx=+h.dataset.tl,box=h.nextElementSibling,opening=box.hidden;
-  if(opening){tlOpen.add(idx);box.innerHTML=tlPhotos(DISHES[idx])}else tlOpen.delete(idx);
+  if(opening){tlOpen.add(idx);box.innerHTML=tlMore(DISHES[idx])}else tlOpen.delete(idx);
   box.hidden=!opening;h.setAttribute("aria-expanded",opening);
 });
 $("#tq").addEventListener("input",renderText);
+$("#tlList").addEventListener("change",e=>{
+  const n=e.target.dataset&&e.target.dataset.rvnote;if(!n)return;
+  const v=e.target.value.trim();if(v)RV.note[n]=v;else delete RV.note[n];saveRv();
+  const li=e.target.closest("li"),b=li&&li.querySelector(".tl-name b");
+  if(b)b.innerHTML=`${n}${RV.ok[n]?' <em class="rv-ok">已確認</em>':""}${RV.note[n]?' <em class="rv-has">要修改</em>':""}`;
+  renderReviewBar();
+});
+$("#reviewToggle").onclick=()=>{reviewOnly=!reviewOnly;renderText()};
+$("#reviewCopy").onclick=()=>{
+  const t=reviewText(),done=()=>$("#reviewMsg").textContent="已複製，貼給 Claude 就能幫你改";
+  const fb=()=>{openDlg("要修改的內容",`<textarea class="copybox" id="rvCopyBox" readonly></textarea>`);$("#rvCopyBox").value=t;$("#rvCopyBox").select()};
+  try{navigator.clipboard.writeText(t).then(done,fb)}catch(err){fb()}
+};
 $("#tlSort").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;tlSort=b.dataset.sort;
   [...$("#tlSort").children].forEach(x=>x.setAttribute("aria-pressed",x===b));renderText()});
 // ---------- 煮過的紀錄 ----------
@@ -1326,7 +1393,7 @@ function editKcal(n){
 
 // ---------- 備份與還原 ----------
 function backup(){
-  const data={app:"sophia-kitchen",v:1,saved:new Date().toISOString(),M,KCO};
+  const data={app:"sophia-kitchen",v:1,saved:new Date().toISOString(),M,KCO,RV};
   const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sophia-kitchen-備份-${toStr(new Date()).replace(/\//g,"-")}.json`;
   document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
@@ -1352,6 +1419,7 @@ $("#restoreFile").addEventListener("change",e=>{
 function restore(){
   const d=pendingRestore;if(!d)return;
   M={...M,...d.M};delete M.cooked;KCO={...(d.KCO||{})};saveKco();
+  if(d.RV&&d.RV.ok&&d.RV.note){RV=d.RV;saveRv()}
   if(!M.weekStart)M.weekStart=planStart();
   pendingRestore=null;$("#backupMsg").innerHTML="";saveM();renderAll();toast("已從備份還原");
 }
